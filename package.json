@@ -1,0 +1,26 @@
+{
+  "name": "cc-sdk-web",
+  "version": "1.0.0",
+  "description": "The web SDK for the Connect Components project",
+  "main": "index.js",
+  "scripts": {
+    "init": "cp env.tmpl .env",
+    "build": "npm run build:dev",
+    "dev": "webpack --config webpack.config.dev.js --mode development --watch",
+    "build:dev": "webpack --config webpack.config.dev.js --mode development",
+    "build:prod": "webpack --config webpack.config.prod.js --mode production",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.fini.city:connect-services/cc-sdk-web.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "dotenv-webpack": "^8.0.1",
+    "webpack": "^5.76.2",
+    "webpack-cli": "^5.0.1"
+  }
+}
