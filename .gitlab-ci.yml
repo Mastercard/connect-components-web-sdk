@@ -1,0 +1,133 @@
+image: node:18
+
+stages:
+  - install
+  - build
+  - test
+  - scan
+
+dependencies:
+  stage: install
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+  script:
+    - npm ci
+  only:
+    changes:
+      - package-lock.json
+
+build:
+  stage: build
+  script:
+    - npm run build:prod
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+    policy: pull # https://docs.gitlab.com/ee/ci/yaml/#cachepolicy
+  artifacts:
+    paths:
+      - dist/
+
+lint:
+  stage: test
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+    policy: pull # https://docs.gitlab.com/ee/ci/yaml/#cachepolicy
+  script:
+    - npm run lint
+
+# prettier:
+# -- Do we want this?
+#   stage: test
+#   cache:
+#     key: ${CI_COMMIT_REF_SLUG}
+#     paths:
+#       - node_modules/
+#     policy: pull # https://docs.gitlab.com/ee/ci/yaml/#cachepolicy
+#   script:
+#     - npm run prettier-check
+
+# Unit tests / Coverage:
+# Todo
+
+# e2e Tests:
+# Todo
+
+# Ignoring Twistlock for now -- we aren't creating a container
+# twistlock:manual:
+#   variables:
+#     GIT_STRATEGY: none
+#   image: dcr.fini.city/devops/osiris
+#   when: manual
+#   cache: {}
+#   stage: scan
+#   script:
+#     - scan_container $CI_REGISTRY_IMAGE:$CI_PIPELINE_ID
+
+# twistlock:
+#   extends: twistlock:manual
+#   only:
+#     - master
+#     - /^release\/.*$/
+#     - develop
+#     - /^hotfix\/.*$/
+#   when: on_success
+  
+checkmarx:manual:
+  stage: scan
+  image:
+    name: dcr.fini.city/images/cx-flow/master:latest
+  when: manual
+  before_script: []
+  script:
+    - java -noverify
+      -XX:+UnlockExperimentalVMOptions
+      -XX:+UseContainerSupport
+      -Djava.security.egd=file:/dev/./urandom
+      -jar /usr/src/app/cx-flow.jar
+      --spring.config.location=/usr/src/app/config.yml
+      --scan
+      --app=${CI_PROJECT_PATH_SLUG}
+      --cx-project=${CI_PROJECT_PATH_SLUG}
+      --repo-url=${CI_PROJECT_URL}/
+      --branch=${CI_COMMIT_REF_NAME}
+      --cx-flow.zip-exclude='\.git/.*, .*\.png'
+      --f=.
+      # --logging.level.org.springframework.web.client.RestTemplate=TRACE
+      # --logging.level.com.checkmarx.flow.service=DEBUG
+      # --logging.level.org.apache.http.wire=TRACE
+  cache: {}
+  dependencies: []
+
+checkmarx:
+  extends: checkmarx:manual
+  only:
+    - develop
+  when: on_success
+
+sonarqube.manual:
+  stage: scan
+  image: ciricihq/gitlab-sonar-scanner
+  when: manual
+  variables:
+    SONAR_ANALYSIS_MODE: publish
+  except:
+    variables:
+    - $CI_COMMIT_MESSAGE =~ /^WIP.*/
+  before_script: []
+  script:
+    - gitlab-sonar-scanner
+
+sonarqube:
+  extends: sonarqube.manual
+  only:
+    - develop
+    - master
+    - /^release\/.*$/
+    - /^hotfix\/.*$/
+  when: on_success

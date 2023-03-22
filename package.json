@@ -9,6 +9,7 @@
     "dev": "webpack --config webpack.config.dev.js --mode development --watch",
     "build:dev": "webpack --config webpack.config.dev.js --mode development",
     "build:prod": "webpack --config webpack.config.prod.js --mode production",
+    "lint": "eslint src/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,7 +20,9 @@
   "author": "",
   "license": "UNLICENSED",
   "devDependencies": {
+    "@babel/eslint-parser": "^7.21.3",
     "dotenv-webpack": "^8.0.1",
+    "eslint": "^8.36.0",
     "webpack": "^5.76.2",
     "webpack-cli": "^5.0.1"
   }

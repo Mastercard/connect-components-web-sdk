@@ -1,5 +1,5 @@
-function mastercardInput_injector() {
-
+function mastercardInput_injector($inject) {
+  const { appConfig } = $inject;
   return class MastercardInput extends HTMLElement {
     constructor() {
       super();
@@ -39,7 +39,11 @@ function mastercardInput_injector() {
       for (let style of this.styles) {
         frame.style[style] = this.styles[style];
       }
-      const src = `http://localhost:5080/sessions/${key}/forms/inputs/${this.getAttribute('form-key')}?style=${styleString}placeholder=${this.getAttribute('placeholder')}`;
+      const instanceId = this.getAttribute('id');
+      const parentForm = this.querySelector('input').form;
+      const sessionId = parentForm.getAttribute('id');
+      const src = `${appConfig.sdkBase}/elements/login-forms/sessions/${sessionId}/instance/${instanceId}?style=${styleString}`;
+
       frame.setAttribute('src', src);
       this.removeChild(mockElement);
 
