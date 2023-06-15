@@ -42,7 +42,7 @@ function mastercardInput_injector($inject) {
       const instanceId = this.getAttribute('id');
       const parentForm = this.querySelector('input').form;
       const formId = parentForm.getAttribute('id');
-      const src = `${appConfig.sdkBase}/login-forms/${formId}/elements/${instanceId}?style=${styleString}`;
+      const src = `${appConfig.sdkBase}/login-forms/${formId}/elements/${instanceId}/contents.html?style=${styleString}`;
 
       frame.setAttribute('src', src);
       this.removeChild(mockElement);
