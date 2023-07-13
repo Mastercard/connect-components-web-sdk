@@ -1,3 +1,7 @@
+import appConfig from '../../config/app.config';
 import mastercardMfaChoice_injector from './MastercardMFAChoice.element';
 
-export default mastercardMfaChoice_injector();
+const $inject = {
+    appConfig
+  };
+export default mastercardMfaChoice_injector(inject);
