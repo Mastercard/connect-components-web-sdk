@@ -8,8 +8,13 @@
     "keyword-spacing": 1,
     "no-param-reassign": "error"
   },
+  "ignorePatterns": [
+    "tests/",
+    "**/*.spec.js",
+    "**/*.e2e.js"
+  ],
   "parserOptions": {
     "sourceType": "module",
-    "ecmaVersion": 2020
+    "ecmaVersion": 2021
   }
 }

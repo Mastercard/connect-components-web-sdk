@@ -1,3 +1,8 @@
 import mastercardInputInjector from './MastercardInput.element';
+import appConfig from '../../config/app.config';
 
-export default mastercardInputInjector();
+const $inject = {
+  appConfig
+};
+
+export default mastercardInputInjector($inject);
