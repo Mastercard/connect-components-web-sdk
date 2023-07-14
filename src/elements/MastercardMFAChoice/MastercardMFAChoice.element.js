@@ -19,10 +19,10 @@ function mastercardMfaChoice_injector($inject) {
       mockElement.setAttribute("type", "radio");
       this.appendChild(mockElement);
       if (this.classList.length) {
-        Array.from(this.classList).forEach((className) => {
+        classList.forEach((value) => {
           mockElement.classList.add(className);
           this.classList.remove(className);
-        });
+        }, this);
       }
       this.styles = window.getComputedStyle(mockElement, null);
       const injectStyle = {
