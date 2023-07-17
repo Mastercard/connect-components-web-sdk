@@ -10,7 +10,10 @@
     "build:dev": "webpack --config webpack.config.dev.js --mode development",
     "build:prod": "webpack --config webpack.config.prod.js --mode production",
     "lint": "eslint src/",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha 'src/**/*.spec.js'",
+    "quality:types": "tsc",
+    "quality:lint": "eslint --ext js .",
+    "quality:lint:fix": "eslint --ext js . --fix"
   },
   "repository": {
     "type": "git",
@@ -20,10 +23,40 @@
   "author": "",
   "license": "UNLICENSED",
   "devDependencies": {
+    "@babel/core": "^7.22.9",
     "@babel/eslint-parser": "^7.21.3",
+    "@babel/preset-env": "^7.22.9",
+    "@babel/register": "^7.22.5",
+    "chai": "^4.3.7",
     "dotenv-webpack": "^8.0.1",
     "eslint": "^8.36.0",
+    "mocha": "^10.2.0",
+    "regenerator-runtime": "^0.13.11",
+    "sinon": "^15.2.0",
+    "typescript": "^5.1.6",
     "webpack": "^5.76.2",
     "webpack-cli": "^5.0.1"
+  },
+  "nyc": {
+    "all": true,
+    "cache": false,
+    "check-coverage": true,
+    "lines": 95,
+    "functions": 95,
+    "branches": 95,
+    "statements": 95,
+    "reporter": [
+      "cobertura",
+      "html",
+      "lcov",
+      "text"
+    ],
+    "include": [
+      "src/"
+    ],
+    "exclude": [
+      "src/**/index.js",
+      "src/**/*.spec.js"
+    ]
   }
 }
