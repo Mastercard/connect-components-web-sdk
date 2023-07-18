@@ -1,3 +1,6 @@
+/**
+ * @param {import('./types').ElementImports} $inject
+ */
 function mastercardMfaChoice_injector($inject) {
   const { appConfig } = $inject;
   return class MastercardMFAChoice extends HTMLElement {
@@ -14,47 +17,60 @@ function mastercardMfaChoice_injector($inject) {
       </div>`;
     }
 
+    // - Lifecycle Events
+    /**
+     * @type {import('./types').ElementExports['connectedCallback']}
+     */
     connectedCallback() {
       const mockElement = document.createElement("input");
       mockElement.setAttribute("type", "radio");
       this.appendChild(mockElement);
       if (this.classList.length) {
-        classList.forEach((tempClassname) => {
+        this.classList.forEach((tempClassname) => {
           mockElement.classList.add(tempClassname);
           this.classList.remove(tempClassname);
         }, this);
       }
       this.styles = window.getComputedStyle(mockElement, null);
+
       const injectStyle = {
         color: this.styles.color,
       };
       for (let key of this.styles) {
         if (key.indexOf("font") === 0 && key !== "font") {
+          // @ts-ignore
           injectStyle[key] = this.styles[key];
         }
       }
       const styleString = window.btoa(JSON.stringify(injectStyle));
 
       const frame = this.querySelector("iframe");
-      for (let style of this.styles) {
-        frame.style[style] = this.styles[style];
+      if (frame) {
+        for (let style of this.styles) {
+          // @ts-ignore
+          frame.style[style] = this.styles[style];
+        }
       }
+
       const instanceId = this.getAttribute("id");
-      const parentForm = this.querySelector("input").form;
-      const formId = parentForm.getAttribute("id");
+      const parentForm = this.querySelector("input")?.form;
+      const formId = parentForm?.getAttribute("id");
       const src = `${appConfig.sdkBase}/frames/parent/mfa/${formId}/inputs/${instanceId}?style=${styleString}`;
 
-      frame.setAttribute("src", src);
+      frame?.setAttribute("src", src);
       this.removeChild(mockElement);
     }
 
+    /**
+     * @param {string} parentFormId
+     */
     submit(parentFormId) {
       const $elem = this.querySelector("iframe");
       const data = JSON.stringify({
         formId: parentFormId,
         eventType: "submit",
       });
-      $elem.contentWindow.postMessage(data, "*");
+      $elem?.contentWindow?.postMessage(data, "*");
     }
   };
 }
