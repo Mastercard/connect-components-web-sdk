@@ -2,7 +2,7 @@
   "name": "cc-sdk-web",
   "version": "1.0.0",
   "description": "The web SDK for the Connect Components project",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "init": "cp env.tmpl .env",
     "build": "npm run build:dev",
