@@ -1,14 +1,13 @@
-
 export type ElementImports = {
   appConfig: import('../../config/types').AppConfig,
   HTMLElement: any,
 }
+
 export type ElementExports = {
   constructor(): any,
   observedAttributes(): Array<string>,
+  render(): void,
   connectedCallback(): void,
-  attributeChangedCallback(name: string, oldValue: string, newValue: string): void,
-  _bindFrameSource(): void,
-  _registerEventListener(): void,
-  _isValidEventStreamId(id: string): boolean,
-};
+  generateStyleString(): void,
+  attributeChangedCallback(name: string): void,
+}
