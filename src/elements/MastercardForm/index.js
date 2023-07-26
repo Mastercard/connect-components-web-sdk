@@ -1,8 +1,10 @@
 import mastercardFormInjector from './MastercardForm.element';
-import http from '../../core/http';
+import appConfig from '../../config/app.config';
 
 const $inject = {
-  http
+  appConfig,
+  crypto,
+  HTMLElement,
 };
 
 export default mastercardFormInjector($inject);

@@ -1,47 +1,73 @@
+/**
+ * @param {import('./types').ElementImports} $inject 
+ */
 function mastercardForm_injector($inject) {
-  const { http } = $inject;
+  const { appConfig, HTMLElement, crypto } = $inject;
 
   return class MastercardForm extends HTMLElement {
-    constructor() {
+    /**
+     * @type {import('./types').ElementExports['constructor']}
+     */
+    constructor () {
       super();
-      const existing = this.innerHTML;
-      this.innerHTML = `<form>${existing}</form>`;
+      this.eventStream;
     }
 
     // - Lifecycle events
+    /**
+     * @type {import('./types').ElementExports['connectedCallback']}
+     */
     connectedCallback() {
-      const $elem = this.querySelector('form');
-      if (this.classList.length) {
-        Array.from(this.classList).forEach(className => {
-          $elem.classList.add(className);
-          this.classList.remove(className);
-        });
+      const existingEventStream = this.querySelector('mastercard-event-stream');
+      if (existingEventStream) {
+        this.eventStream = existingEventStream;
+      } else if (this.getAttribute('event-stream-id')?.length) {
+        /** @type {string} */
+        // @ts-ignore
+        const streamId = this.getAttribute('event-stream-id');
+        this.eventStream = document.createElement('mastercard-event-stream');
+        this.eventStream.setAttribute('event-stream-id', streamId);
+        this.appendChild(this.eventStream);
       }
-      $elem.addEventListener('mastercard-form-submit', event => {
-        this.onSubmit.call(this, event);
+      this.observer = new MutationObserver(() => {
+        Array.from(this.querySelectorAll('mastercard-input')).filter(elem => {
+          return elem.getAttribute('form-id') !== this.id;
+        }).forEach(elem => {
+          elem.setAttribute('form-id', this.id);
+        });
       });
+
+      // @ts-ignore
+      this.observer.observe(this, { subtree: true, childList: true, characterData: false });
     }
 
     // - Custom methods
+    /**
+     * This method is used to intercept native onSubmit calls and forward them to our own custom
+     * submit function
+     * @type {import('./types').ElementExports['onSubmit']} 
+     */
     onSubmit(event) {
       event.preventDefault();
-      const formId = this.getAttribute('form-key');
-      const formInputs = Array.from(this.querySelectorAll('mastercard-input'));
-      if (!formInputs || !formInputs.length) {
-        console.error(`No form inputs to submit`);
-        return;
+      this.submit();
+    }
+
+    /**
+     * Sends a message to the orchestration service, which lives in the event stream iframe
+     * @type {import('./types').ElementExports['submit']}
+     */
+    submit() {
+      const requestId = crypto.randomUUID();
+      const targetOrigin = appConfig.sdkBase;
+      const message = {
+        eventType: 'submitRequest',
+        requestId,
+      };
+      if (this.eventStream) {
+        // @ts-ignore
+        this.eventStream.querySelector('iframe').contentWindow.postMessage(message, targetOrigin);
       }
-      formInputs.forEach(input => {
-        input.submit.call(input, formId);
-      });
-      // Wait and then grab the login status
-      setTimeout(async () => {
-        const formResponse = await http.post(`sessions/forms/${formId}`)
-        const onTokenize = new Event('tokenized');
-        onTokenize.value = formResponse.token;
-        this.dispatchEvent(onTokenize);
-      }, 500);
-      
+
     }
   }
 }
