@@ -1,6 +1,6 @@
 
 export type ElementImports = {
-  appConfig: import('../../config/app.config').AppConfig,
+  appConfig: import('../../config/types').AppConfig,
   HTMLElement: any,
 }
 export type ElementExports = {

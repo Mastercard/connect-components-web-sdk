@@ -1,7 +1,5 @@
 /**
- * @typedef {{
- *  sdkBase: string
- * }} AppConfig
+ * @type {import('./types').AppConfig}
  */
 const appConfig = {
   sdkBase: process.env.APP_SDK_BASE ?? ''
