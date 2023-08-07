@@ -35,6 +35,11 @@ function mastercardForm_injector($inject) {
         }).forEach(elem => {
           elem.setAttribute('form-id', this.id);
         });
+        Array.from(this.querySelectorAll('mastercard-mfa-choice')).filter(elem => {
+          return elem.getAttribute('form-id') !== this.id;
+        }).forEach(elem => {
+          elem.setAttribute('form-id', this.id);
+        });
       });
 
       // @ts-ignore
@@ -66,6 +71,8 @@ function mastercardForm_injector($inject) {
       if (this.eventStream) {
         // @ts-ignore
         this.eventStream.querySelector('iframe').contentWindow.postMessage(message, targetOrigin);
+      } else {
+        console.warn(`No event stream registered!`);
       }
 
     }

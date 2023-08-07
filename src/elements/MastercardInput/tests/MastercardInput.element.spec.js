@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import injector from '../MastercardInput.element';
 
-describe('elements/MastercardInput/MastercardInput.service', () => {
+describe('elements/MastercardInput/MastercardInput.element', () => {
   const sandbox = sinon.createSandbox();
 
   let $elem, $inject, instance;
