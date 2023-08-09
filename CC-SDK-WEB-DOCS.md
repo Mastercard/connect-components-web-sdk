@@ -3,26 +3,133 @@
 - [Connect Components SDK: Web Browsers](#connect-components-sdk-web-browsers)
   - [Table of Contents](#table-of-contents)
   - [Overview](#overview)
+    - [Elements](#elements)
+      - [Mastercard Form](#mastercard-form)
+      - [Mastercard Input](#mastercard-input)
+      - [Mastercard MFA Input](#mastercard-mfa-input)
+        - [Note: MFA Challenge](#note-mfa-challenge)
+      - [Mastercard Event Stream](#mastercard-event-stream)
+    - [Events](#events)
+      - [`login` (Oauth only)](#login-oauth-only)
+      - [`success`](#success)
+      - [`error`](#error)
+      - [`mfaChallenge` (*Legacy login only*)](#mfachallenge-legacy-login-only)
+        - [MFA Challenges Types](#mfa-challenges-types)
+          - [1. `TFA_TEXT`](#1-tfa_text)
+          - [2. `TFA_CHOICE`](#2-tfa_choice)
+          - [3. `TFA_MULTI`](#3-tfa_multi)
+          - [4. `TFA_IMAGE`](#4-tfa_image)
   - [Installation](#installation)
   - [Usage](#usage)
+    - [Login Form Useage](#login-form-useage)
+      - [Successful Financial Institution Connection](#successful-financial-institution-connection)
+      - [MFA Required for Connection](#mfa-required-for-connection)
+        - [TFA\_TEXT](#tfa_text)
+        - [TFA\_CHOICE](#tfa_choice)
+        - [TFA\_MULTI](#tfa_multi)
+        - [TFA\_IMAGE](#tfa_image)
+        - [Submit MFA challenge](#submit-mfa-challenge)
+      - [Error Occurred During Connection Attempt](#error-occurred-during-connection-attempt)
  
 
 
 ## Overview
 This project provides a means for partners to integrate with Connect Components via a web browser. The SDK provides a collection of custom Web Components that can be used to build login forms for legacy institutions, open pop-up windows for oauth institutions, and render Multi-Factor Authorization challenges.
 
+### Elements
+All elements are custom [Web Components](https://developer.mozilla.org/en-US/docs/Web/API/Web_components) and provide a framework-agnostic way to encapsulate logic needed for each element. These elements enable developers to have complete control over the user experience.
+#### Mastercard Form
+```html
+<mastercard-form id="" event-stream-id=""></mastercard-form>
+```
+The custom form element is responsible for brokering postMessage connections to the <mastercard-input> elements and MFA challenge components. For institution logins, both legacy and oauth, the attribute `type='institution-login'` will be set. For *oauth* logins, the mastercard form element is responsible for listening for [Server Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events) during the *oauth* login and account discovery phases. See the [Events](#events) section below for more information.
+#### Mastercard Input
+```html
+<mastercard-input id=""></mastercard-input>
+```
+These elements provide the core functionality for *legacy* institution login forms. There will need to be one `<mastercard-input>` for each of the login form inputs that is returned by the [Connect Components Server](https://apicurio-registry.dev.fini.city/ui/artifacts/open-banking-gold-standard/open-banking-gold-standard%2Fconnect-components-api%2Fconnect-components-api-us.yaml/versions/latest#operation/post-institutions-institutionId-login-forms). This is typically just `username` and `password`, but there are some loging forms that have a third or even forth required input. 
+#### Mastercard MFA Input 
+```html
+<mastercard-mfa-input id=""></mastercard-mfa-input>
+```
+This is the element type that is used to capture a response from a user. It can be an image or text box and depends on the MFA Challenge response. All that is needed from the calling application is an id attribute on the `mastercard-mfa-input` so the server can return the correct data.
+##### Note: MFA Challenge
+The MFA challenge will use the same <mastercard-form> element as the login forms, but with the `type="mfaChallenge"` attribute.
+
+#### Mastercard Event Stream
+In a legacy login, this element is created automatically by the SDK when a [`<mastercard-form>`](###mastercard-form) element is added to the page with an `event-stream-id` attribute set. 
+
+During an Oauth login, this element will need to be added on the page that users will be redirected to after the  `login` event is emitted. This will allow the application to recieve the `done` event from the SDK. 
+
+### Events
+#### `login` (Oauth only)
+This event is triggered once the user has completed the **Oauth** login flow with their financial institution. At this point, the calling application may close the **Oauth** popup window.
+#### `success` 
+When a Mastercard has successfully connected to a customers account this event will be emitted. The customer account infromation will be included in the sucess object.  
+```json
+[
+  {
+  "accessCode": "6d462d4e-86aa-4482-8a3f-bbd538d8b8c4",
+  "customerId": "6021877507",
+  "institutionId": "101732",
+  "institutionLoginId": 6018508414,
+  "accountId": "6038699817"
+  }
+]
+```
+#### `error` 
+When an error is encountered during the login flow, this error will be captured and returned with the event. The error will contain the needed information to guide the user in resolving the error, if resolvable. This include cases where the user entered invalid credentials, for example. The payload on the done event when the login has failed will look like:
+```json
+{
+  "type": "error",
+  "code": 10001,
+  "message": "Invalid authorization credentials",
+}
+```
+#### `mfaChallenge` (*Legacy login only*) 
+When attempting to fetch account information for a customer, a financial institution may send back a multi-factor challenge that the customer must complete to continue the flow. When an MFA Challenge is raised by the institution, an [`mfaChallenge`](##mfa-challenges) object will be returned with the `done` event. The `mfaChallenge` object will contain the needed data for rendering the challenge to the user, similar to how the credentials form elements for legacy connections work.
+```json
+[
+  {
+  "accessCode": "5673f6b7-bcdc-45e4-91f7-f2d483fd61ce",
+  "type": "TFA_TEXT",
+  "prompt": "What is your favorite color",
+  "inputIds": [
+    "497f6eca-6276-4993-bfeb-53cbbbba6f08"
+    ]
+  }
+]
+```
+##### MFA Challenges Types
+There are four types of MFA challenges that can be returned.
+###### 1. `TFA_TEXT`  
+A `TFA_TEXT` challenge type will present a prompt and asingle input box to the customer. These are commonly used for One-Time Passwords or challenge questions.
+###### 2. `TFA_CHOICE`  
+A `TFA_CHOICE` challenege type will have a question and a multiple choice answer selection.
+###### 3. `TFA_MULTI` 
+A `TFA_MULTI` challenge type will present the customer with multiple images to select from. The prompt for this challenge is text, with multiple choice elements that the customer needs to select.
+###### 4. `TFA_IMAGE`
+A `TFA_IMAGE` challenge will present a captcha-style image that the customer will need to decipher. The prompt for this challenge is an image, with a single choice element being a text box to enter the unscrambled image text into.
+
 ## Installation
-  Prerequisites:
-  <ul>
+Installaltion Prerequisites: 
+<ul>
     <li><details>
     <summary markdown="span">Install node.js</summary>
     If you haven't already, start by installing node.js using your favorite <a href='https://nodejs.org/en/download/package-manager'>package manager</a> or  use the node.js <a href='https://nodejs.org/en/download'>installer</a> for your operating system.
   </details></li>
       <li><details>
-    <summary markdown="span">Initialize your npm project</summary>
+    <summary markdown="span">Initialize a npm project</summary>
     Once you have node.js installed, create a new folder for your project. Open a terminal window and initialize your project by running: 
     <code>npm init</code>
   </details></li>
+</ul>
+The Mastercard Connect Components SDK can be installed via npm: 
+```bash
+npm i mastercard-cc-sdk
+```
+  Project Prerequisites:
+  <ul>
   <li><details>
     <summary markdown="span">Create a basic web server</summary>
     Now install <a href='https://expressjs.com'>express.js</a> by running:
@@ -34,7 +141,7 @@ This project provides a means for partners to integrate with Connect Components 
       if (err) {
         console.error(`Server error: ${err}`)
       }
-      console.log('Demo app ready.')
+      console.log(`Demo app ready and listening on port 3000)
     });
     module.exports = app;</code></pre>
   </details></li>
@@ -47,11 +154,197 @@ This project provides a means for partners to integrate with Connect Components 
   </ul> 
 
 ## Usage
+Useage of the SDK doesn't really start until after you have called the Mastercard Connect Components API to create a [login form](https://apicurio-registry.dev.fini.city/ui/artifacts/open-banking-gold-standard/open-banking-gold-standard%2Fconnect-components-api%2Fconnect-components-api-us.yaml/versions/latest#operation/post-institutions-institutionId-login-forms) or [Oauth url](https://apicurio-registry.dev.fini.city/ui/artifacts/open-banking-gold-standard/open-banking-gold-standard%2Fconnect-components-api%2Fconnect-components-api-us.yaml/versions/latest#operation/post-institutions-institutionId-oauth-urls). From this point, the useage of the SDK biforcates.
+### Login Form Useage
+The response from the Connect Componets API to [create a login form](https://apicurio-registry.dev.fini.city/ui/artifacts/open-banking-gold-standard/open-banking-gold-standard%2Fconnect-components-api%2Fconnect-components-api-us.yaml/versions/latest#operation/post-institutions-institutionId-login-forms) will look like this: 
+```json
+{
+  "id": "8d9d8f5e-2c5f-4f49-bf9b-276a7df0367f",
+  "eventStreamId": "8859489f-12aa-4fd3-bcf5-ba0249e643a3",
+  "elements": [
+    {
+      "id": "26410b1f-0347-4d57-bb03-f44d00e785e2",
+      "label": "username",
+      "sortOrder": 0
+    },
+    {
+      "id": "f2ce62c2-877f-4c26-9935-d1ab6084e6d0",
+      "label": "password",
+      "sortOrder": 1
+    }
+  ]
+}
+```
+This response is provided to the Connect Components SDK to render the login form elements. Each item in the `elements` property represents a single `<input>` for a customer to interact with. 
 
+**Note: Input Element Quantities Vary**
+It's important to note that the names and quantity of form elements returned depends entirely on the selected financial institution. For most institutions, two elements should be expected (one to capture a username and one to capture a password), but this is not always the case. Care should be taken to account for any variations.
 
+The above response would be rendered using the SDK with the `<mastercard-form>` and `<mastercard-input>` elements. Notice that the top level `id` and `eventStreamId` properties from the response have been added to the `mastercard-form` element. While the ids from each of the items in the elements array have been atted to an individual `mastercard-input` element. These `id` attributes provide the SDK with all of the information needed to render this login form. 
+```html
+<mastercard-form 
+  id="8d9d8f5e-2c5f-4f49-bf9b-276a7df0367f" 
+  event-stream-id="8859489f-12aa-4fd3-bcf5-ba0249e643a3">
+    <mastercard-input id="26410b1f-0347-4d57-bb03-f44d00e785e2"></mastercard-input>
+    <mastercard-input id="f2ce62c2-877f-4c26-9935-d1ab6084e6d0"></mastercard-input>
+    <button id='submit-credentials'>Submit</button>
+</mastercard-form>
+```
+To submit this `<mastercard-form>` and initiate the connection to the customer's financial institution, the correct SDK submit method must be called. In vanilla javascript, this could look like: 
+```javascript
+const mastercardForm = document.querySelector('mastercard-form');
+const submitButton = document.querySelector('#submit-credentials');
+submitButton.addEventListener('click', browserClickEvent => {
+  browserClickEvent.preventDefault();
+  mastercardForm.submit();
+});
+``` 
+Once the `.submit()` method has been called on the `<mastercard-form>` element, the SDK will handle sending the customer's credentials to Mastercard to begin connecting to the customer's financial institution. 
 
+For your application to know when the connection is complete, you will need to listen for the [events](#events) described above. For login forms, only a `done` event listener is needed. This listener needs to handle the different [payloads](#done-event-payloads) ([success](#1-success), [fail](#2-fail), [MFA](#3-mfa-legacy-login-only)) that can result from a login attempt.
+```javascript
+const mastercardEventStream = document.querySelector('mastercard-form').eventStream;
+mastercardEventStream.events.addEventListener('done', doneEvent => {
+  //This example handles the done event by posting the event payload to the application's server.
+  const request = new Request(`http://localhost:5467/customers/${customerId}/done`, {
+    method: 'POST',
+    body: JSON.stringify(doneEvent)
+  })
+  fetch(request)
+    .then(response => {
+      console.log(response.json())
+    })
+    .catch(console.error);
+});
+```
+#### Successful Financial Institution Connection
+In the [success case]((#1-success)) the event payoad will contain the `customerId`, `institutionId`, `accountId`, and `institutionLoginId` (Mastercard documentation for these fields can be found: [customerId](https://api-reference.finicity.com/#/rest/models/structures/customer), [institutionId](https://api-reference.finicity.com/#/rest/models/structures/institution), [accountId](https://api-reference.finicity.com/#/rest/models/structures/customer-account), [institutionLoginId](https://api-reference.finicity.com/#/rest/api-endpoints/accounts/get-customer-accounts-by-institution-login-id)). From your server you can used the MAstercard Open Banking API to retrieve bank information for your customer.  
+```json
+[{
+  "customerId": "<customerId>",
+  "institutionId": "<institutionId>",
+  "accountId": "<accountId>",
+  "institutionLoginId": "<institutionLoginId>"
+}]
+```
+#### MFA Required for Connection
+As discussed [above](#mfa-challenges-types), there are four types of MFA challenges that could be required by a financial institution: [TFA_TEXT](#1-tfa_text), [TFA_CHOICE](#2-tfa_choice), [TFA_MULTI](#3-tfa_multi), and [TFA_IMAGE](#4-tfa_image). 
+##### TFA_TEXT
+This challenge type will present a single input box to the customer and is commonly used for things like One-Time Passwords. The expected response for this type will be:
+```json
+{
+  "id": "3ea29b1a-0c2c-4052-a3e1-0cdb856163e8",
+  "eventStreamId": "da03e052-915b-4ddc-9098-1ecbcc757bea",
+  "type": "TFA_TEXT",
+  "prompt": "Enter name of your first pet.", 
+  "inputIds": [
+    "28bc340a-3b84-4dd1-85eb-cfacf8e0a0e9"
+  ],
+}
+```
+Rendering the challenge could look like: 
+```html
+<mastercard-form 
+  id="3ea29b1a-0c2c-4052-a3e1-0cdb856163e8" 
+  event-stream-id="da03e052-915b-4ddc-9098-1ecbcc757bea">
+    <label for="28bc340a-3b84-4dd1-85eb-cfacf8e0a0e9">Enter name of your first pet.</label>
+    <mastercard-mfa-choice id="28bc340a-3b84-4dd1-85eb-cfacf8e0a0e9"></mastercard-mfa-choice>
+    <button id='submit-mfa'>Submit</button>
+</mastercard-form>
+```
+##### TFA_CHOICE
+The TFA_CHOICE object represents a multiple choice question and answer selection. The expected response for this type will be:
+```json
+{
+  "id": "3ea29b1a-0c2c-4052-a3e1-0cdb856163e8",
+  "eventStreamId": "da03e052-915b-4ddc-9098-1ecbcc757bea",
+  "type": "TFA_CHOICE",
+  "prompt": "Which high school did you attend?", 
+  "inputIds": [
+    "372e703a-70db-4cf1-8b1f-23be24c50d74",
+    "eeecb2b8-c55a-4ce1-9fd0-ae560a363adb",
+    "1c012d39-ebf3-46ea-a5fe-b6460400520b",
+    "b4e727df-cf8d-42d3-bfe9-8456c0178077"
+  ]
+}
+```
+Rendering the challenge could look like: 
+```html
+<mastercard-form 
+  id="3ea29b1a-0c2c-4052-a3e1-0cdb856163e8" 
+  event-stream-id="da03e052-915b-4ddc-9098-1ecbcc757bea">
+    <p for="28bc340a-3b84-4dd1-85eb-cfacf8e0a0e9">Which high school did you attend?</p>
+    <mastercard-mfa-choice id="372e703a-70db-4cf1-8b1f-23be24c50d74"></mastercard-mfa-choice>
+    <mastercard-mfa-choice id="eeecb2b8-c55a-4ce1-9fd0-ae560a363adb"></mastercard-mfa-choice>
+    <mastercard-mfa-choice id="1c012d39-ebf3-46ea-a5fe-b6460400520b"></mastercard-mfa-choice>
+    <mastercard-mfa-choice id="b4e727df-cf8d-42d3-bfe9-8456c0178077"></mastercard-mfa-choice>
+    <button id='submit-mfa'>Submit</button>
+</mastercard-form>
+```
+##### TFA_MULTI
+This challenge type will present the customer with multiple images to select from. The expected response for this type will be:
+```json
+{
+  "id": "3ea29b1a-0c2c-4052-a3e1-0cdb856163e8",
+  "eventStreamId": "da03e052-915b-4ddc-9098-1ecbcc757bea",
+  "type": "TFA_MULTI",
+  "prompt": "Choose your favourite sport.", 
+  "inputIds": [
+    "55684c30-ff18-4b2a-a7ab-7ed6d3fa3fc0",
+    "2a395968-0610-44e7-a379-96d4bfbcd0d3",
+    "2847e882-882e-4c18-8c89-309673dc730d",
+    "52fcac64-0d3d-4e7f-aa0b-36d6be003b62"
+  ],
+}
+```
+Rendering the challenge could look like: 
+```html
+<mastercard-form 
+  id="3ea29b1a-0c2c-4052-a3e1-0cdb856163e8" 
+  event-stream-id="da03e052-915b-4ddc-9098-1ecbcc757bea">
+    <label for="28bc340a-3b84-4dd1-85eb-cfacf8e0a0e9">Which high school did you attend?</label>
+    <mastercard-mfa-choice id="55684c30-ff18-4b2a-a7ab-7ed6d3fa3fc0"></mastercard-mfa-choice>
+    <mastercard-mfa-choice id="2a395968-0610-44e7-a379-96d4bfbcd0d3"></mastercard-mfa-choice>
+    <mastercard-mfa-choice id="2847e882-882e-4c18-8c89-309673dc730d"></mastercard-mfa-choice>
+    <mastercard-mfa-choice id="52fcac64-0d3d-4e7f-aa0b-36d6be003b62"></mastercard-mfa-choice>
+    <button id='submit-mfa'>Submit</button>
+</mastercard-form>
+```
+##### TFA_IMAGE
+A TFA_IMAGE challenge will present a captcha-style image the customer will need to decipher. The `prompt` for this challenge is a [base64 URI encoded](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URLs) image, with a single choice element that is a text box to enter the unscrambled image text into. The expected response for this type will be:
+```json
+{
+  "id": "3ea29b1a-0c2c-4052-a3e1-0cdb856163e8",
+  "eventStreamId": "da03e052-915b-4ddc-9098-1ecbcc757bea",
+  "type": "TFA_IMAGE",
+  "prompt": "<base64 URI encoded image>", 
+  "inputIds": [
+    "28bc340a-3b84-4dd1-85eb-cfacf8e0a0e9"
+  ],
+}
+```
+Rendering the challenge could look like: 
+```html
+<mastercard-form 
+  id="3ea29b1a-0c2c-4052-a3e1-0cdb856163e8" 
+  event-stream-id="da03e052-915b-4ddc-9098-1ecbcc757bea">
+    <img data="<base64 URI encoded image string>">
+    <mastercard-mfa-choice id="28bc340a-3b84-4dd1-85eb-cfacf8e0a0e9"></mastercard-mfa-choice>
+    <button id='submit-mfa'>Submit</button>
+</mastercard-form>
+```
+##### Submit MFA challenge
+```javascript
+const mastercardForm = document.querySelector("#3ea29b1a-0c2c-4052-a3e1-0cdb856163e8");
+const submitButton = document.querySelector("submit-mfa");
+submitButton.addEventListener('click', browserClickEvent => {
+  browserClickEvent.preventDefault();
+  mastercardForm.submit();
+});
+```
 
-
+#### Error Occurred During Connection Attempt
+###Oauth Useage
 
 <!-- ## Configuration
 
