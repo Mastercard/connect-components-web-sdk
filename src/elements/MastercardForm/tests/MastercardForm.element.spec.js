@@ -94,7 +94,7 @@ describe('elements/MastercardForm/MastercardForm.service', () => {
         instance.connectedCallback();
         instance.observer._trigger();
         expect(instance.querySelectorAll.calledWith('mastercard-input')).to.be.true;
-        expect(elementSetAttribute.callCount).to.eq(2);
+        expect(elementSetAttribute.callCount).to.eq(4);
       });
     });
   });

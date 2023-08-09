@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import injector from '../MastercardInput.element';
+import injector from '../MastercardMFAChoice.element';
 
-describe('elements/MastercardInput/MastercardInput.element', () => {
+describe('elements/MastercardMFAChoice/MastercardMFAChoice.element', () => {
   const sandbox = sinon.createSandbox();
 
   let $elem, $inject, instance;
