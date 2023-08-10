@@ -21,7 +21,7 @@
           - [4. `TFA_IMAGE`](#4-tfa_image)
   - [Installation](#installation)
   - [Usage](#usage)
-    - [Login Form Useage](#login-form-useage)
+    - [Login Form Usage](#login-form-usage)
       - [Successful Financial Institution Connection](#successful-financial-institution-connection)
       - [MFA Required for Connection](#mfa-required-for-connection)
         - [TFA\_TEXT](#tfa_text)
@@ -30,6 +30,7 @@
         - [TFA\_IMAGE](#tfa_image)
         - [Submit MFA challenge](#submit-mfa-challenge)
       - [Error Occurred During Connection Attempt](#error-occurred-during-connection-attempt)
+    - [Oauth Usage](#oauth-usage)
  
 
 
@@ -47,7 +48,7 @@ The custom form element is responsible for brokering postMessage connections to 
 ```html
 <mastercard-input id=""></mastercard-input>
 ```
-These elements provide the core functionality for *legacy* institution login forms. There will need to be one `<mastercard-input>` for each of the login form inputs that is returned by the [Connect Components Server](https://apicurio-registry.dev.fini.city/ui/artifacts/open-banking-gold-standard/open-banking-gold-standard%2Fconnect-components-api%2Fconnect-components-api-us.yaml/versions/latest#operation/post-institutions-institutionId-login-forms). This is typically just `username` and `password`, but there are some loging forms that have a third or even forth required input. 
+These elements provide the core functionality for *legacy* institution login forms. There will need to be one `<mastercard-input>` for each of the login form inputs that is returned by the [Connect Components Server](https://apicurio-registry.dev.fini.city/ui/artifacts/open-banking-gold-standard/open-banking-gold-standard%2Fconnect-components-api%2Fconnect-components-api-us.yaml/versions/latest#operation/post-institutions-institutionId-login-forms). This is typically just `username` and `password`, but there are some login forms that have a third or even forth required input. 
 #### Mastercard MFA Input 
 ```html
 <mastercard-mfa-input id=""></mastercard-mfa-input>
@@ -59,17 +60,16 @@ The MFA challenge will use the same <mastercard-form> element as the login forms
 #### Mastercard Event Stream
 In a legacy login, this element is created automatically by the SDK when a [`<mastercard-form>`](###mastercard-form) element is added to the page with an `event-stream-id` attribute set. 
 
-During an Oauth login, this element will need to be added on the page that users will be redirected to after the  `login` event is emitted. This will allow the application to recieve the `done` event from the SDK. 
+During an Oauth login, this element will need to be added on the page that users will be redirected to after the  `login` event is emitted. This will allow the application to receive the events from the SDK. 
 
 ### Events
 #### `login` (Oauth only)
 This event is triggered once the user has completed the **Oauth** login flow with their financial institution. At this point, the calling application may close the **Oauth** popup window.
 #### `success` 
-When a Mastercard has successfully connected to a customers account this event will be emitted. The customer account infromation will be included in the sucess object.  
+When a Mastercard has successfully connected to a customers account this event will be emitted. This payload is an array of objects. Each object represents a single successful account connection. 
 ```json
 [
   {
-  "accessCode": "6d462d4e-86aa-4482-8a3f-bbd538d8b8c4",
   "customerId": "6021877507",
   "institutionId": "101732",
   "institutionLoginId": 6018508414,
@@ -78,16 +78,15 @@ When a Mastercard has successfully connected to a customers account this event w
 ]
 ```
 #### `error` 
-When an error is encountered during the login flow, this error will be captured and returned with the event. The error will contain the needed information to guide the user in resolving the error, if resolvable. This include cases where the user entered invalid credentials, for example. The payload on the done event when the login has failed will look like:
+When an error is encountered during the login flow, this error will be captured and returned with the event. The error event payload will contain the needed information to guide the user in resolving the error, if resolvable. The payload on the done event when the login has failed will look like:
 ```json
 {
-  "type": "error",
-  "code": 10001,
-  "message": "Invalid authorization credentials",
+  "code": 103,
+  "message": "The login credentials you entered are not valid for this account. Please log into your bank’s site and make sure you have access and then try again. Error code 103",
 }
 ```
 #### `mfaChallenge` (*Legacy login only*) 
-When attempting to fetch account information for a customer, a financial institution may send back a multi-factor challenge that the customer must complete to continue the flow. When an MFA Challenge is raised by the institution, an [`mfaChallenge`](##mfa-challenges) object will be returned with the `done` event. The `mfaChallenge` object will contain the needed data for rendering the challenge to the user, similar to how the credentials form elements for legacy connections work.
+When attempting to fetch account information for a customer, a financial institution may send back a multi-factor challenge that the customer must complete to continue the flow. When an MFA Challenge is raised by the institution, an [`mfaChallenge`](##mfa-challenges) event will be emitted. The `mfaChallenge` payload is an array of objects where each object represents a single MFA challenge needing to be solved.
 ```json
 [
   {
@@ -103,7 +102,7 @@ When attempting to fetch account information for a customer, a financial institu
 ##### MFA Challenges Types
 There are four types of MFA challenges that can be returned.
 ###### 1. `TFA_TEXT`  
-A `TFA_TEXT` challenge type will present a prompt and asingle input box to the customer. These are commonly used for One-Time Passwords or challenge questions.
+A `TFA_TEXT` challenge type will present a prompt and a single input box to the customer. These are commonly used for One-Time Passwords or challenge questions.
 ###### 2. `TFA_CHOICE`  
 A `TFA_CHOICE` challenege type will have a question and a multiple choice answer selection.
 ###### 3. `TFA_MULTI` 
@@ -112,7 +111,7 @@ A `TFA_MULTI` challenge type will present the customer with multiple images to s
 A `TFA_IMAGE` challenge will present a captcha-style image that the customer will need to decipher. The prompt for this challenge is an image, with a single choice element being a text box to enter the unscrambled image text into.
 
 ## Installation
-Installaltion Prerequisites: 
+Installation Prerequisites: 
 <ul>
     <li><details>
     <summary markdown="span">Install node.js</summary>
@@ -154,9 +153,9 @@ npm i mastercard-cc-sdk
   </ul> 
 
 ## Usage
-Useage of the SDK doesn't really start until after you have called the Mastercard Connect Components API to create a [login form](https://apicurio-registry.dev.fini.city/ui/artifacts/open-banking-gold-standard/open-banking-gold-standard%2Fconnect-components-api%2Fconnect-components-api-us.yaml/versions/latest#operation/post-institutions-institutionId-login-forms) or [Oauth url](https://apicurio-registry.dev.fini.city/ui/artifacts/open-banking-gold-standard/open-banking-gold-standard%2Fconnect-components-api%2Fconnect-components-api-us.yaml/versions/latest#operation/post-institutions-institutionId-oauth-urls). From this point, the useage of the SDK biforcates.
-### Login Form Useage
-The response from the Connect Componets API to [create a login form](https://apicurio-registry.dev.fini.city/ui/artifacts/open-banking-gold-standard/open-banking-gold-standard%2Fconnect-components-api%2Fconnect-components-api-us.yaml/versions/latest#operation/post-institutions-institutionId-login-forms) will look like this: 
+Usage of the SDK doesn't really start until after you have called the Mastercard Connect Components API to create a [login form](https://apicurio-registry.dev.fini.city/ui/artifacts/open-banking-gold-standard/open-banking-gold-standard%2Fconnect-components-api%2Fconnect-components-api-us.yaml/versions/latest#operation/post-institutions-institutionId-login-forms) or [Oauth url](https://apicurio-registry.dev.fini.city/ui/artifacts/open-banking-gold-standard/open-banking-gold-standard%2Fconnect-components-api%2Fconnect-components-api-us.yaml/versions/latest#operation/post-institutions-institutionId-oauth-urls). From this point, the implementation of the SDK bifurcate to the [login form use case](#login-form-usage) and [oauth url use case](#oauth-usage).
+### Login Form Usage
+The response from the Connect Components API to [create a login form](https://apicurio-registry.dev.fini.city/ui/artifacts/open-banking-gold-standard/open-banking-gold-standard%2Fconnect-components-api%2Fconnect-components-api-us.yaml/versions/latest#operation/post-institutions-institutionId-login-forms) will look like this: 
 ```json
 {
   "id": "8d9d8f5e-2c5f-4f49-bf9b-276a7df0367f",
@@ -180,7 +179,7 @@ This response is provided to the Connect Components SDK to render the login form
 **Note: Input Element Quantities Vary**
 It's important to note that the names and quantity of form elements returned depends entirely on the selected financial institution. For most institutions, two elements should be expected (one to capture a username and one to capture a password), but this is not always the case. Care should be taken to account for any variations.
 
-The above response would be rendered using the SDK with the `<mastercard-form>` and `<mastercard-input>` elements. Notice that the top level `id` and `eventStreamId` properties from the response have been added to the `mastercard-form` element. While the ids from each of the items in the elements array have been atted to an individual `mastercard-input` element. These `id` attributes provide the SDK with all of the information needed to render this login form. 
+The above response would be rendered using the SDK with the `<mastercard-form>` and `<mastercard-input>` elements. Notice that the top level `id` and `eventStreamId` properties from the response are attributes on the `mastercard-form` element. The ids from each of the items in the elements array have been added to an individual `mastercard-input` element. These `id` attributes provide the SDK with all of the information needed to render this login form. 
 ```html
 <mastercard-form 
   id="8d9d8f5e-2c5f-4f49-bf9b-276a7df0367f" 
@@ -201,14 +200,14 @@ submitButton.addEventListener('click', browserClickEvent => {
 ``` 
 Once the `.submit()` method has been called on the `<mastercard-form>` element, the SDK will handle sending the customer's credentials to Mastercard to begin connecting to the customer's financial institution. 
 
-For your application to know when the connection is complete, you will need to listen for the [events](#events) described above. For login forms, only a `done` event listener is needed. This listener needs to handle the different [payloads](#done-event-payloads) ([success](#1-success), [fail](#2-fail), [MFA](#3-mfa-legacy-login-only)) that can result from a login attempt.
+For your application to know when the connection is complete, it will need to listen for the [events](#events) described above. For login forms, one of three events will be emitted. Your application will need to have event listeners for [success](#success) [error](#error), and [mfaChallenge](#mfaChallenge) events. To add an event listener, you will call the `addEventListener()` method on the `mastercard-form` element's eventStream property. 
 ```javascript
 const mastercardEventStream = document.querySelector('mastercard-form').eventStream;
-mastercardEventStream.events.addEventListener('done', doneEvent => {
+mastercardEventStream.events.addEventListener('success', successEvent => {
   //This example handles the done event by posting the event payload to the application's server.
-  const request = new Request(`http://localhost:5467/customers/${customerId}/done`, {
+  const request = new Request(`http://localhost:5467/customers/${customerId}/success`, {
     method: 'POST',
-    body: JSON.stringify(doneEvent)
+    body: JSON.stringify(successEvent)
   })
   fetch(request)
     .then(response => {
@@ -218,7 +217,7 @@ mastercardEventStream.events.addEventListener('done', doneEvent => {
 });
 ```
 #### Successful Financial Institution Connection
-In the [success case]((#1-success)) the event payoad will contain the `customerId`, `institutionId`, `accountId`, and `institutionLoginId` (Mastercard documentation for these fields can be found: [customerId](https://api-reference.finicity.com/#/rest/models/structures/customer), [institutionId](https://api-reference.finicity.com/#/rest/models/structures/institution), [accountId](https://api-reference.finicity.com/#/rest/models/structures/customer-account), [institutionLoginId](https://api-reference.finicity.com/#/rest/api-endpoints/accounts/get-customer-accounts-by-institution-login-id)). From your server you can used the MAstercard Open Banking API to retrieve bank information for your customer.  
+If the connection to the financial institution was successful, the [success]((#1-success)) event payload will contain the `customerId`, `institutionId`, `accountId`, and `institutionLoginId` (Mastercard documentation for these fields can be found: [customerId](https://api-reference.finicity.com/#/rest/models/structures/customer), [institutionId](https://api-reference.finicity.com/#/rest/models/structures/institution), [accountId](https://api-reference.finicity.com/#/rest/models/structures/customer-account), [institutionLoginId](https://api-reference.finicity.com/#/rest/api-endpoints/accounts/get-customer-accounts-by-institution-login-id)). From your server you can use the Mastercard Open Banking API to retrieve bank information for your customer.  
 ```json
 [{
   "customerId": "<customerId>",
@@ -228,7 +227,7 @@ In the [success case]((#1-success)) the event payoad will contain the `customerI
 }]
 ```
 #### MFA Required for Connection
-As discussed [above](#mfa-challenges-types), there are four types of MFA challenges that could be required by a financial institution: [TFA_TEXT](#1-tfa_text), [TFA_CHOICE](#2-tfa_choice), [TFA_MULTI](#3-tfa_multi), and [TFA_IMAGE](#4-tfa_image). 
+If a MFA challenge was encountered during connection, the [mfaChallenge](#mfachallenge-legacy-login-only) event will be emitted. As discussed, there are four types of MFA challenges that could be required by a financial institution: [TFA_TEXT](#1-tfa_text), [TFA_CHOICE](#2-tfa_choice), [TFA_MULTI](#3-tfa_multi), and [TFA_IMAGE](#4-tfa_image). 
 ##### TFA_TEXT
 This challenge type will present a single input box to the customer and is commonly used for things like One-Time Passwords. The expected response for this type will be:
 ```json
@@ -288,7 +287,7 @@ This challenge type will present the customer with multiple images to select fro
   "id": "3ea29b1a-0c2c-4052-a3e1-0cdb856163e8",
   "eventStreamId": "da03e052-915b-4ddc-9098-1ecbcc757bea",
   "type": "TFA_MULTI",
-  "prompt": "Choose your favourite sport.", 
+  "prompt": "Choose your favorite sport.", 
   "inputIds": [
     "55684c30-ff18-4b2a-a7ab-7ed6d3fa3fc0",
     "2a395968-0610-44e7-a379-96d4bfbcd0d3",
@@ -344,7 +343,14 @@ submitButton.addEventListener('click', browserClickEvent => {
 ```
 
 #### Error Occurred During Connection Attempt
-###Oauth Useage
+If the connection to the financial institution failed, the [error]((#1-error)) event will be emitted. The payload will contain the information need to guide the customer through error resolution, if possible. Mastercard Open API documentation sets out the potential errors under [api errors](https://docs.finicity.com/api-errors/) and [aggregation status codes](https://docs.finicity.com/aggregation-status-codes/). Based on the error code, you can determine the best method customer through error resolution.
+```json
+{
+  "code": 103,
+  "message": "The login credentials you entered are not valid for this account. Please log into your bank’s site and make sure you have access and then try again. Error code 103",
+}
+```
+### Oauth Usage
 
 <!-- ## Configuration
 
