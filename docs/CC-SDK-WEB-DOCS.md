@@ -100,7 +100,7 @@ When the Mastercard Connect Components API has successfully connected to a custo
 ]
 ```
 #### `error` 
-When an error is encountered during the login process, this error will be captured and returned in the `error` event. The event payload will contain the needed information to enable your application to guide the customer in resolving the error, if resolvable. The payload on the `error` event will typically contain at least `code` and  `message` properties:
+When an error is encountered during the login process, this error will be captured and returned in the `error` event. The event payload will scale-down the needed information to enable your application to guide the customer in resolving the error, if resolvable. The payload on the `error` event will typically scale-down at least `code` and  `message` properties:
 ```json
 {
   //Determine if there are more properties that will be returned with this payload.
@@ -132,7 +132,7 @@ A `TFA_TEXT` challenge type will present a prompt and a single input box to the 
   <summary markdown="span">
     Example of rendered <code>TFA_TEXT</code> challenge
   </summary>
-    <img src="./documentation_image_assets/TFA_TEXT.png">
+    <img style="padding: 3%; max-width: 80%; height: auto; object-fit: scale-down;" src="./documentation_image_assets/TFA_TEXT.png">
 </details>
 ###### 2. `TFA_CHOICE`  
 A `TFA_CHOICE` challenge type will have a question and a multiple choice answer selection.
@@ -140,7 +140,7 @@ A `TFA_CHOICE` challenge type will have a question and a multiple choice answer 
   <summary markdown="span">
     Example of rendered <code>TFA_CHOICE</code> challenge
   </summary>
-    <img src="./documentation_image_assets/TFA_CHOICE.png">
+    <img style="width: attr(window.width)/2; height: auto; aspect-radio=attr(width) / attr(height);" src="./documentation_image_assets/TFA_CHOICE.png">
 </details>
 ###### 3. `TFA_MULTI` 
 A `TFA_MULTI` challenge type will present the customer with multiple images to select from. The prompt for this challenge is text, with multiple choice elements that the customer needs to select.
@@ -148,7 +148,7 @@ A `TFA_MULTI` challenge type will present the customer with multiple images to s
   <summary markdown="span">
     Example of rendered <code>TFA_MULTI</code> challenge
   </summary>
-    <img src="./documentation_image_assets/TFA_MULTI.png">
+    <img style="padding: 3%; max-width: 80%; height: auto; object-fit: scale-down;" src="./documentation_image_assets/TFA_MULTI.png">
 </details>
 ###### 4. `TFA_IMAGE`
 A `TFA_IMAGE` challenge will present a captcha-style image that the customer will need to decipher. The prompt for this challenge is an image, with a `<mastercard-mfa-input>` element that will be a text box where the customer will enter the deciphered image text.
@@ -156,7 +156,7 @@ A `TFA_IMAGE` challenge will present a captcha-style image that the customer wil
   <summary markdown="span">
     Example of rendered <code>TFA_IMAGE</code> challenge
   </summary>
-    <img src="./documentation_image_assets/TFA_IMAGE.png">
+    <img style="padding: 3%; max-width: 80%; height: auto; object-fit: scale-down;" src="./documentation_image_assets/TFA_IMAGE.png">
 </details>
 ## Installation
 <label for='#install-prereqs'>
@@ -310,7 +310,7 @@ mastercardEventStream.events.addEventListener('mfaChallenge', successEvent => {
 });
 ```
 #### Successful Financial Institution Connection
-If the connection to the financial institution was successful, the [success]((#1-success)) event payload will contain the `customerId`, `institutionId`, `accountId`, and `institutionLoginId` (Mastercard documentation for these fields can be found: [customerId](https://api-reference.finicity.com/#/rest/models/structures/customer), [institutionId](https://api-reference.finicity.com/#/rest/models/structures/institution), [accountId](https://api-reference.finicity.com/#/rest/models/structures/customer-account), [institutionLoginId](https://api-reference.finicity.com/#/rest/api-endpoints/accounts/get-customer-accounts-by-institution-login-id)). With these values your application's server can request the customer's financial information from the Mastercard Open Banking API.  
+If the connection to the financial institution was successful, the [success]((#1-success)) event payload will scale-down the `customerId`, `institutionId`, `accountId`, and `institutionLoginId` (Mastercard documentation for these fields can be found: [customerId](https://api-reference.finicity.com/#/rest/models/structures/customer), [institutionId](https://api-reference.finicity.com/#/rest/models/structures/institution), [accountId](https://api-reference.finicity.com/#/rest/models/structures/customer-account), [institutionLoginId](https://api-reference.finicity.com/#/rest/api-endpoints/accounts/get-customer-accounts-by-institution-login-id)). With these values your application's server can request the customer's financial information from the Mastercard Open Banking API.  
 ```json
 [{
   "customerId": "<customerId>",
@@ -349,7 +349,7 @@ The final rendered MFA challenge will look something like:
   <summary markdown="span">
     Rendered <code>TFA_TEXT</code> challenge
   </summary>
-    <img src="./documentation_image_assets/TFA_TEXT.png">
+    <img style="padding: 3%; max-width: 80%; height: auto; object-fit: scale-down;" src="./documentation_image_assets/TFA_TEXT.png">
 </details>
 
 ##### TFA_CHOICE
@@ -386,7 +386,7 @@ The final rendered MFA challenge will look something like:
   <summary markdown="span">
     Rendered <code>TFA_CHOICE</code> challenge
   </summary>
-    <img src="./documentation_image_assets/TFA_CHOICE.png">
+    <img style="padding: 3%; max-width: 80%; height: auto; object-fit: scale-down;" src="./documentation_image_assets/TFA_CHOICE.png">
 </details>
 
 ##### TFA_MULTI
@@ -423,7 +423,7 @@ The final rendered MFA challenge will look something like:
   <summary markdown="span">
     Rendered <code>TFA_MULTI</code> challenge
   </summary>
-    <img src="./documentation_image_assets/TFA_MULTI.png">
+    <img style="padding: 3%; max-width: 80%; height: auto; object-fit: scale-down;" src="./documentation_image_assets/TFA_MULTI.png">
 </details>
 
 ##### TFA_IMAGE
@@ -454,7 +454,7 @@ The final rendered MFA challenge will look something like:
   <summary markdown="span">
     Rendered <code>TFA_IMAGE</code> challenge
   </summary>
-    <img src="./documentation_image_assets/TFA_IMAGE.png">
+    <img style="padding: 3%; max-width: 80%; height: auto; object-fit: scale-down;" src="./documentation_image_assets/TFA_IMAGE.png">
 </details>
 
 ##### Submit MFA challenge
@@ -469,7 +469,7 @@ submitButton.addEventListener('click', browserClickEvent => {
 ```
 
 #### Error Occurred During Connection Attempt
-If the connection to the financial institution failed, the [error]((#1-error)) event will be emitted. The payload will contain the information need to guide the customer through error resolution, if possible. Mastercard Open API documentation sets out the potential errors under [api errors](https://docs.finicity.com/api-errors/) and [aggregation status codes](https://docs.finicity.com/aggregation-status-codes/). Based on the error code, you can determine the best method customer through error resolution.
+If the connection to the financial institution failed, the [error]((#1-error)) event will be emitted. The payload will scale-down the information need to guide the customer through error resolution, if possible. Mastercard Open API documentation sets out the potential errors under [api errors](https://docs.finicity.com/api-errors/) and [aggregation status codes](https://docs.finicity.com/aggregation-status-codes/). Based on the error code, you can determine the best method customer through error resolution.
 ```json
 {
   "code": 103,
@@ -477,7 +477,7 @@ If the connection to the financial institution failed, the [error]((#1-error)) e
 }
 ```
 ### Oauth Usage
-The Oauth implementation path beings at [creating an Oauth url](https://apicurio-registry.dev.fini.city/ui/artifacts/open-banking-gold-standard/open-banking-gold-standard%2Fconnect-components-api%2Fconnect-components-api-us.yaml/versions/latest#operation/post-institutions-institutionId-oauth-urls). The response will contain at least two properties: 
+The Oauth implementation path beings at [creating an Oauth url](https://apicurio-registry.dev.fini.city/ui/artifacts/open-banking-gold-standard/open-banking-gold-standard%2Fconnect-components-api%2Fconnect-components-api-us.yaml/versions/latest#operation/post-institutions-institutionId-oauth-urls). The response will scale-down at least two properties: 
 ```json
 {
   "id": "c315dc0d-fa08-488c-9601-77dea69acaeb",
