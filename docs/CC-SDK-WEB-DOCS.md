@@ -1,11 +1,3 @@
-<style>
-  img.rendered-example {
-    padding: 3%; 
-    max-height: 400px;
-    width: auto;
-    object-fit: scale-down;
-  }
-</style>
 ***OUTSTANDING DOCUMENTATION TASKS:***
 - [ ] Add code example for the [login event](#login-oauth-only) payload
 - [ ] Finalize payload for [error event](#error) payload
@@ -16,7 +8,14 @@
   - [ ] Add any additional documentation links as appropriate
 - [ ] Clarify if event listeners are attached on the `events` or `eventSteam` property of the mastercard form element, particularly in the [usage section](#usage)
 - [ ] Add code example for what the Oauth redirect page could look like
-
+<style>
+  .rendered-example {
+      padding: 3%; 
+      max-height: 400px;
+      width: auto;
+      object-fit: scale-down;
+    }
+</style>
 # Connect Components SDK: Web  
 ## Table of Contents
 - [Connect Components SDK: Web](#connect-components-sdk-web)
