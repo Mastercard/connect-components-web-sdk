@@ -143,6 +143,7 @@ A `TFA_CHOICE` challenge type will have a question and a multiple choice answer 
   </summary>
     <img style="width: attr(window.width)/2; height: auto; aspect-radio=attr(width) / attr(height);" src="./documentation_image_assets/TFA_CHOICE.png">
 </details>
+
 ###### 3. `TFA_MULTI` 
 A `TFA_MULTI` challenge type will present the customer with multiple images to select from. The prompt for this challenge is text, with multiple choice elements that the customer needs to select.
 <details>
