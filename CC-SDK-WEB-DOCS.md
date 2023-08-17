@@ -1,6 +1,6 @@
-# Connect Components SDK: Web Browsers  
+# Connect Components SDK: Web  
 ## Table of Contents
-- [Connect Components SDK: Web Browsers](#connect-components-sdk-web-browsers)
+- [Connect Components SDK: Web](#connect-components-sdk-web)
   - [Table of Contents](#table-of-contents)
   - [Overview](#overview)
     - [Elements](#elements)
@@ -31,40 +31,41 @@
         - [Submit MFA challenge](#submit-mfa-challenge)
       - [Error Occurred During Connection Attempt](#error-occurred-during-connection-attempt)
     - [Oauth Usage](#oauth-usage)
- 
-
-
+      - [Popup](#popup)
+      - [Redirection](#redirection)
 ## Overview
 This project provides a means for partners to integrate with Connect Components via a web browser. The SDK provides a collection of custom Web Components that can be used to build login forms for legacy institutions, open pop-up windows for oauth institutions, and render Multi-Factor Authorization challenges.
-
 ### Elements
-All elements are custom [Web Components](https://developer.mozilla.org/en-US/docs/Web/API/Web_components) and provide a framework-agnostic way to encapsulate logic needed for each element. These elements enable developers to have complete control over the user experience.
+All elements are custom [Web Components](https://developer.mozilla.org/en-US/docs/Web/API/Web_components) and provide a framework-agnostic way to encapsulate logic needed for each element. These elements enable developers to have complete control over the customer experience.
 #### Mastercard Form
 ```html
-<mastercard-form id="" event-stream-id=""></mastercard-form>
+<mastercard-form id="" ></mastercard-form>
 ```
-The custom form element is responsible for brokering postMessage connections to the <mastercard-input> elements and MFA challenge components. For institution logins, both legacy and oauth, the attribute `type='institution-login'` will be set. For *oauth* logins, the mastercard form element is responsible for listening for [Server Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events) during the *oauth* login and account discovery phases. See the [Events](#events) section below for more information.
+The custom form element is responsible for brokering postMessage connections to the <mastercard-input> elements and MFA challenge components. For institution logins, both legacy and oauth, the attribute `type='institution-login'` will be set.
 #### Mastercard Input
 ```html
 <mastercard-input id=""></mastercard-input>
 ```
-These elements provide the core functionality for *legacy* institution login forms. There will need to be one `<mastercard-input>` for each of the login form inputs that is returned by the [Connect Components Server](https://apicurio-registry.dev.fini.city/ui/artifacts/open-banking-gold-standard/open-banking-gold-standard%2Fconnect-components-api%2Fconnect-components-api-us.yaml/versions/latest#operation/post-institutions-institutionId-login-forms). This is typically just `username` and `password`, but there are some login forms that have a third or even forth required input. 
+These elements provide the core functionality for ***legacy*** institution login forms. There will need to be one `<mastercard-input>` for each of the login form inputs that is returned by the [Connect Components API](https://apicurio-registry.dev.fini.city/ui/artifacts/open-banking-gold-standard/open-banking-gold-standard%2Fconnect-components-api%2Fconnect-components-api-us.yaml/versions/latest#operation/post-institutions-institutionId-login-forms). This is typically just `username` and `password`, but there are some login forms that have a third or even forth required input. 
 #### Mastercard MFA Input 
 ```html
 <mastercard-mfa-input id=""></mastercard-mfa-input>
 ```
-This is the element type that is used to capture a response from a user. It can be an image or text box and depends on the MFA Challenge response. All that is needed from the calling application is an id attribute on the `mastercard-mfa-input` so the server can return the correct data.
+This is the element type that is used to capture a response from a customer. It can be an image or text box and depends on the MFA Challenge response. All that is needed from the calling application is an id attribute on the `mastercard-mfa-input` so the Connect Components API can return the correct data.
 ##### Note: MFA Challenge
 The MFA challenge will use the same <mastercard-form> element as the login forms, but with the `type="mfaChallenge"` attribute.
 
 #### Mastercard Event Stream
-In a legacy login, this element is created automatically by the SDK when a [`<mastercard-form>`](###mastercard-form) element is added to the page with an `event-stream-id` attribute set. 
+In a legacy login, this element is created automatically by the SDK when a [`<mastercard-form>`](###mastercard-form) element is added to the page. 
 
-During an Oauth login, this element will need to be added on the page that users will be redirected to after the  `login` event is emitted. This will allow the application to receive the events from the SDK. 
+During an Oauth login, this element will need to be added on the page that customers will be redirected to after the `login` event is emitted. This will allow the application to receive the events from the SDK. 
+```html
+<mastercard-event-stream></mastercard-event-stream>
+```
 
 ### Events
 #### `login` (Oauth only)
-This event is triggered once the user has completed the **Oauth** login flow with their financial institution. At this point, the calling application may close the **Oauth** popup window.
+This event is triggered once the customer has completed the **Oauth** login flow with their financial institution. At this point, the calling application may close the **Oauth** popup window.
 #### `success` 
 When a Mastercard has successfully connected to a customers account this event will be emitted. This payload is an array of objects. Each object represents a single successful account connection. 
 ```json
@@ -78,7 +79,7 @@ When a Mastercard has successfully connected to a customers account this event w
 ]
 ```
 #### `error` 
-When an error is encountered during the login flow, this error will be captured and returned with the event. The error event payload will contain the needed information to guide the user in resolving the error, if resolvable. The payload on the done event when the login has failed will look like:
+When an error is encountered during the login flow, this error will be captured and returned with the event. The error event payload will contain the needed information to guide the customer in resolving the error, if resolvable. The payload on the done event when the login has failed will look like:
 ```json
 {
   "code": 103,
@@ -205,19 +206,51 @@ For your application to know when the connection is complete, it will need to li
 const mastercardEventStream = document.querySelector('mastercard-form').eventStream;
 mastercardEventStream.events.addEventListener('success', successEvent => {
   //This example handles the done event by posting the event payload to the application's server.
-  const request = new Request(`http://localhost:5467/customers/${customerId}/success`, {
+  const successfulConnection = new Request(`https://example.app.com/customers/${customerId}/success`, {
     method: 'POST',
     body: JSON.stringify(successEvent)
   })
-  fetch(request)
+  fetch(successfulConnection)
     .then(response => {
-      console.log(response.json())
+     const notificationElement = document.querySelector("#customer-notification");
+      const errorDialog = `
+      <dialog open>
+        <p>${response.customerSuccessNotification}</p>
+        <form method="dialog">
+          <button>OK</button>
+        </form>
+      </dialog>`
+      notificationElement.setHTML(errorDialog);
     })
     .catch(console.error);
 });
+
+mastercardEventStream.events.addEventListener('error', errorEvent => {
+  //This example handles the error event by posting the error payload to the application's server and notifying the customer that an error has occurred.
+  const errorDuringLogin = new Request(`https://example.app.com/customers/${customerId}/error`, {
+    method: 'POST',
+    body: JSON.stringify(errorEvent)
+  })
+  fetch(errorDuringLogin)
+    .then(response => {
+      const notificationElement = document.querySelector("#customer-notification");
+      const errorDialog = `
+      <dialog open>
+        <p>${response.customerErrorNotification}</p>
+        <form method="dialog">
+          <button>OK</button>
+        </form>
+      </dialog>`
+      notificationElement.setHTML(errorDialog);
+    })
+    .catch(console.error);
+});
+mastercardEventStream.events.addEventListener('mfaChallenge', successEvent => {
+  //The types of MFA challenges differ, refer to the MFA Required For Connection section below for more details.
+});
 ```
 #### Successful Financial Institution Connection
-If the connection to the financial institution was successful, the [success]((#1-success)) event payload will contain the `customerId`, `institutionId`, `accountId`, and `institutionLoginId` (Mastercard documentation for these fields can be found: [customerId](https://api-reference.finicity.com/#/rest/models/structures/customer), [institutionId](https://api-reference.finicity.com/#/rest/models/structures/institution), [accountId](https://api-reference.finicity.com/#/rest/models/structures/customer-account), [institutionLoginId](https://api-reference.finicity.com/#/rest/api-endpoints/accounts/get-customer-accounts-by-institution-login-id)). From your server you can use the Mastercard Open Banking API to retrieve bank information for your customer.  
+If the connection to the financial institution was successful, the [success]((#1-success)) event payload will contain the `customerId`, `institutionId`, `accountId`, and `institutionLoginId` (Mastercard documentation for these fields can be found: [customerId](https://api-reference.finicity.com/#/rest/models/structures/customer), [institutionId](https://api-reference.finicity.com/#/rest/models/structures/institution), [accountId](https://api-reference.finicity.com/#/rest/models/structures/customer-account), [institutionLoginId](https://api-reference.finicity.com/#/rest/api-endpoints/accounts/get-customer-accounts-by-institution-login-id)). From your application server you can use the Mastercard Open Banking API to retrieve bank information for your customer.  
 ```json
 [{
   "customerId": "<customerId>",
@@ -351,14 +384,82 @@ If the connection to the financial institution failed, the [error]((#1-error)) e
 }
 ```
 ### Oauth Usage
+The Oauth implementation path beings at [creating an Oauth url](https://apicurio-registry.dev.fini.city/ui/artifacts/open-banking-gold-standard/open-banking-gold-standard%2Fconnect-components-api%2Fconnect-components-api-us.yaml/versions/latest#operation/post-institutions-institutionId-oauth-urls). The response will contain two properties: 
+```json
+{
+  "id": "c315dc0d-fa08-488c-9601-77dea69acaeb",
+  "url": "https://finbank.com/oauth/login"
+}
+```
+With the `url` value there are two ways to navigate the customer to their financial institutions Oauth login page: [popup](#popup) and [redirection](#redirection). 
 
-<!-- ## Configuration
+***Note:*** It is the body of the request to create the Oauth url that determines which method should be used to display the Oauth authentication flow. If the a valid `redirectURI` is provided in the request, then the Connection Components API will redirect the customer to the provided URI at end completion of the Oauth flow. If no `redirectURI` is provided, then it is the responsibility of the application to open and close the customer's Oauth url.  
 
-## Filing Issues
-## Frequently Asked Questions
-## Releases
-## Security Policy 
-## Semantic Versioning Policy
-## Stylistic 
-## License
-## Team -->
+Regardless of the method that is used to direct the customer to the Oauth authentication flow, the application will need to listen for the [`login`](#login-oauth-only) event describe above. 
+#### Popup
+
+The `url` can be opened into a popup window using the [`open()` method](https://developer.mozilla.org/en-US/docs/Web/API/Window/open) on the window object of the browser:
+```javascript
+const mastercardEventStream = document.querySelector('mastercard-form').eventStream;
+const oauthPopupRef = openOauthUrl(oauthUrlResponse.url, targetName);
+ /** Call to Connect Component API to create a oauth url */
+const oauthUrlResponse = requestOauthUrl();
+
+/** Save the target name as a secondary way to get a reference to the popup window */
+const targetName = "financialInstitutionOauthLoginPage"
+
+/** Save a reference to the popup window returned by window.open. */
+const oauthPopupRef = openOauthUrl(oauthUrlResponse.url, targetName);
+
+function openOauthUrl(url target){
+  const windowFeatures = "popup=true,width=320,height=320";
+  return window.open(url, target, windowFeatures);
+}
+```
+***Note:*** The [origin](https://developer.mozilla.org/en-US/docs/Glossary/Origin) of the Oauth url will be different than your applications origin. This means that your application will have [same-origin policy](https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy) restrictions on how your application can interact with it. While limiting your ability to manipulate the popup, it is an inherent security feature of the Oauth authentication flow.
+
+Once the customer has completed the Oauth login flow with their institution and the institution has successfully provided the Oauth token to the Connect Component Api, the SDK will emit the [`login`](#login-oauth-only) event. In this event handler, the application can close the popup. 
+```javascript
+
+const targetName = "financialInstitutionOauthLoginPage"
+/** Save a reference to the Oauth popup to close it after the login event. */
+const oauthPopupRef = openOauthUrl(oauthUrlResponse.url, targetName);
+
+function openOauthUrl(url, targetName){
+  const windowFeatures = "popup=true,width=320,height=320";
+  /** Open the Oauth url in a new window (popup) */
+  return window.open(url, target, windowFeatures);
+}
+
+/** Get referent to the event stream from the mastercard form element */
+const mastercardEventStream = document.querySelector('mastercard-form').eventStream;
+
+mastercardEventStream.events.addEventListener('login', loginEvent => {
+  let popupWindow = oauthPopupRef;
+  if (!popupWindow){
+    popupWindow = window.open("", targetName)
+  }
+  if (popupWindow.closed !== true){
+    popupWindow.close();
+  }
+});
+```
+
+#### Redirection
+Like the popup method, the redirection method starts with the call to [creating an Oauth url](https://apicurio-registry.dev.fini.city/ui/artifacts/open-banking-gold-standard/open-banking-gold-standard%2Fconnect-components-api%2Fconnect-components-api-us.yaml/versions/latest#operation/post-institutions-institutionId-oauth-urls). Unlike the popup method, to use redirection you must pass `redirectURI` as part of the request body.
+```json
+{
+"redirectURI": "https://oauth.example.com/redirect",
+"customerId": "6021877507",
+}
+```
+Your application will redirect to the  `url` in the response from the Oauth url creation call.
+```javascript
+window.location.replace(oauthUrlResponse.url);
+```
+When the Oauth authentication process is complete, the Connect Components API will redirect to the `uri` that was provided with the original request to create the Oauth url. It will be your applications responsibility to ensure that the Connect Components Web SDK is loaded with the page that is redirected to. This is vital as the Web SDK is need so that you can also initialize event listeners to receive the [`success`](#success) or [`error`](#error) events to progress the customer through the bank connection flow in the manner that you determine is best.
+
+It is ***vital*** that the page that the customer is redirected to do three things:
+1. Load the Connect Components Web SDK
+2. Create an `<mastercard-event-stream>` element
+3. Add event listeners for the `success` and `error` events.
