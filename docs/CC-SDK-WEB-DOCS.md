@@ -485,7 +485,7 @@ If the connection to the financial institution failed, the [error]((#1-error)) e
 }
 ```
 ### Oauth Usage
-The Oauth implementation path beings at [creating an Oauth url](https://apicurio-registry.dev.fini.city/ui/artifacts/open-banking-gold-standard/open-banking-gold-standard%2Fconnect-components-api%2Fconnect-components-api-us.yaml/versions/latest#operation/post-institutions-institutionId-oauth-urls). The response will scale-down at least two properties: 
+The Oauth implementation path beings at [creating an Oauth url](https://apicurio-registry.dev.fini.city/ui/artifacts/open-banking-gold-standard/open-banking-gold-standard%2Fconnect-components-api%2Fconnect-components-api-us.yaml/versions/latest#operation/post-institutions-institutionId-oauth-urls). The response will include at least two properties: 
 ```json
 {
   "id": "c315dc0d-fa08-488c-9601-77dea69acaeb",
@@ -497,7 +497,7 @@ With the `url` value there are two ways to navigate the customer to their financ
 #### Determining How To Navigate To the Oauth Url
 It is the ***body*** of the request to create the Oauth url that determines which method will be used to navigate the customer to the Oauth authentication flow. 
 
-If the a valid `redirectURI` is provided in the request, then the Connection Components API will redirect the customer to the provided URI at the completion of the Oauth authentication flow. If no `redirectURI` is provided, then it is the responsibility of your application to open and close the customer's Oauth url in a new window.  
+If a valid `redirectURI` is provided in the request, then the Connection Components API will redirect the customer to the provided URI at the completion of the Oauth authentication flow. If no `redirectURI` is provided, then it is the responsibility of your application to open and close the customer's Oauth url in a new window.  
 
 Regardless of the method that is used to direct the customer to the Oauth authentication flow, the application will need to listen for the [`login`](#login-oauth-only) event describe above. 
 #### Popup
@@ -564,7 +564,7 @@ When the Oauth authentication process is complete, the Connect Components API wi
 
 Again, it is ***vital*** that the page that the customer is redirected to do three things:
 1. Load the Connect Components Web SDK
-2. Create an `<mastercard-event-stream>` element
+2. Create a `<mastercard-event-stream>` element
 3. Add event listeners for the `success` and `error` events.
 ```html
 //Add HTML/Javascript example of what they redirect page could look like.
