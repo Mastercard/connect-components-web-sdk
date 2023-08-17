@@ -56,7 +56,7 @@ This is the element type that is used to capture a response from a customer. It 
 The MFA challenge will use the same <mastercard-form> element as the login forms, but with the `type="mfaChallenge"` attribute.
 
 #### Mastercard Event Stream
-In a legacy login, this element is created automatically by the SDK when a [`<mastercard-form>`](###mastercard-form) element is added to the page. 
+In a legacy login, this element is created automatically by the SDK when a [`<mastercard-form>`](###mastercard-form) element is added to the page. In some of the example below, you will notice the [`<mastercard-form>`](###mastercard-form) has the `event-stream-id` 
 
 During an Oauth login, this element will need to be added on the page that customers will be redirected to after the `login` event is emitted. This will allow the application to receive the events from the SDK. 
 ```html
@@ -112,23 +112,20 @@ A `TFA_MULTI` challenge type will present the customer with multiple images to s
 A `TFA_IMAGE` challenge will present a captcha-style image that the customer will need to decipher. The prompt for this challenge is an image, with a single choice element being a text box to enter the unscrambled image text into.
 
 ## Installation
-Installation Prerequisites: 
-<ul>
-    <li><details>
-    <summary markdown="span">Install node.js</summary>
-    If you haven't already, start by installing node.js using your favorite <a href='https://nodejs.org/en/download/package-manager'>package manager</a> or  use the node.js <a href='https://nodejs.org/en/download'>installer</a> for your operating system.
-  </details></li>
+<bold>Installation Prerequisites:</bold> 
+  <ul>
       <li><details>
-    <summary markdown="span">Initialize a npm project</summary>
-    Once you have node.js installed, create a new folder for your project. Open a terminal window and initialize your project by running: 
-    <code>npm init</code>
-  </details></li>
-</ul>
-The Mastercard Connect Components SDK can be installed via npm: 
-```bash
-npm i mastercard-cc-sdk
-```
-  Project Prerequisites:
+      <summary markdown="span">Install node.js</summary>
+      If you haven't already, start by installing node.js using your favorite<a href='https://nodejs.org/en/download/package-manager'>package manager</a> or use the node.js<a href='https://nodejs.org/en/download'>installer</a> for your operating system.
+    </details></li>
+        <li><details>
+      <summary markdown="span">Initialize a npm project</summary>
+      Once you have node.js installed, create a new folder for your project. Open a terminal window and initialize your project by running: 
+      <code>npm init</code>
+    </details></li>
+    <li>The Mastercard Connect Components SDK can be installed via npm: <code>npm i mastercard-cc-sdk</code></li>
+  </ul>
+<bold>Project Prerequisites:</bold>
   <ul>
   <li><details>
     <summary markdown="span">Create a basic web server</summary>
@@ -180,7 +177,7 @@ This response is provided to the Connect Components SDK to render the login form
 **Note: Input Element Quantities Vary**
 It's important to note that the names and quantity of form elements returned depends entirely on the selected financial institution. For most institutions, two elements should be expected (one to capture a username and one to capture a password), but this is not always the case. Care should be taken to account for any variations.
 
-The above response would be rendered using the SDK with the `<mastercard-form>` and `<mastercard-input>` elements. Notice that the top level `id` and `eventStreamId` properties from the response are attributes on the `mastercard-form` element. The ids from each of the items in the elements array have been added to an individual `mastercard-input` element. These `id` attributes provide the SDK with all of the information needed to render this login form. 
+The above response would be rendered using the SDK with the `<mastercard-form>` and `<mastercard-input>` elements. Notice that the top level `id` and `eventStreamId` properties from the response are attributes on the `mastercard-form` element. Additionally, the ids from each of the items in the elements array have been added to an individual `mastercard-input` element. These `id` attributes provide the SDK with all of the information needed to render this login form. 
 ```html
 <mastercard-form 
   id="8d9d8f5e-2c5f-4f49-bf9b-276a7df0367f" 
@@ -446,20 +443,22 @@ mastercardEventStream.events.addEventListener('login', loginEvent => {
 ```
 
 #### Redirection
-Like the popup method, the redirection method starts with the call to [creating an Oauth url](https://apicurio-registry.dev.fini.city/ui/artifacts/open-banking-gold-standard/open-banking-gold-standard%2Fconnect-components-api%2Fconnect-components-api-us.yaml/versions/latest#operation/post-institutions-institutionId-oauth-urls). Unlike the popup method, to use redirection you must pass `redirectURI` as part of the request body.
+Like the popup method, the redirection method starts with the call to [create an Oauth url](https://apicurio-registry.dev.fini.city/ui/artifacts/open-banking-gold-standard/open-banking-gold-standard%2Fconnect-components-api%2Fconnect-components-api-us.yaml/versions/latest#operation/post-institutions-institutionId-oauth-urls). Unlike the popup method, to use redirection, you must pass `redirectURI` as part of the request body.
 ```json
 {
 "redirectURI": "https://oauth.example.com/redirect",
 "customerId": "6021877507",
 }
 ```
-Your application will redirect to the  `url` in the response from the Oauth url creation call.
+Your application will redirect to the `url` that is returned in the response from the Oauth url creation call. Redirecting to the Oauth flow url could look like:
 ```javascript
 window.location.replace(oauthUrlResponse.url);
 ```
-When the Oauth authentication process is complete, the Connect Components API will redirect to the `uri` that was provided with the original request to create the Oauth url. It will be your applications responsibility to ensure that the Connect Components Web SDK is loaded with the page that is redirected to. This is vital as the Web SDK is need so that you can also initialize event listeners to receive the [`success`](#success) or [`error`](#error) events to progress the customer through the bank connection flow in the manner that you determine is best.
+When the Oauth authentication process is complete, the Connect Components API will redirect to the `uri` that was provided as the value of the `redirectURI` with the original request to create the Oauth url. It will be your applications responsibility to ensure that the Connect Components Web SDK is loaded with the page that is redirected to. This is vital as the Web SDK is needed so that you can also initialize event listeners to receive the [`success`](#success) or [`error`](#error) events and progress the customer through the remainder of your customer flow.
 
-It is ***vital*** that the page that the customer is redirected to do three things:
+Again, it is ***vital*** that the page that the customer is redirected to do three things:
 1. Load the Connect Components Web SDK
 2. Create an `<mastercard-event-stream>` element
 3. Add event listeners for the `success` and `error` events.
+```html
+```
