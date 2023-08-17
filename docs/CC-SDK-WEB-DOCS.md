@@ -132,7 +132,7 @@ A `TFA_TEXT` challenge type will present a prompt and a single input box to the 
   <summary markdown="span">
     Example of rendered <code>TFA_TEXT</code> challenge
   </summary>
-    <img style="padding: 3%; object-fit: scale-down;" src="./documentation_image_assets/TFA_TEXT.png">
+    <img style="padding: 3%; max-height:400px; object-fit: scale-down;" src="./documentation_image_assets/TFA_TEXT.png">
 </details>
 
 ###### 2. `TFA_CHOICE`  
@@ -150,7 +150,7 @@ A `TFA_MULTI` challenge type will present the customer with multiple images to s
   <summary markdown="span">
     Example of rendered <code>TFA_MULTI</code> challenge
   </summary>
-    <img style="padding: 3%; object-fit: scale-down;" src="./documentation_image_assets/TFA_MULTI.png">
+    <img style="padding: 3%; max-height:400px; object-fit: scale-down;" src="./documentation_image_assets/TFA_MULTI.png">
 </details>
 
 ###### 4. `TFA_IMAGE`
@@ -159,7 +159,7 @@ A `TFA_IMAGE` challenge will present a captcha-style image that the customer wil
   <summary markdown="span">
     Example of rendered <code>TFA_IMAGE</code> challenge
   </summary>
-    <img style="padding: 3%; object-fit: scale-down;" src="./documentation_image_assets/TFA_IMAGE.png">
+    <img style="padding: 3%; max-height:400px; object-fit: scale-down;" src="./documentation_image_assets/TFA_IMAGE.png">
 </details>
 
 ## Installation
@@ -353,7 +353,7 @@ The final rendered MFA challenge will look something like:
   <summary markdown="span">
     Rendered <code>TFA_TEXT</code> challenge
   </summary>
-    <img style="padding: 3%; object-fit: scale-down;" src="./documentation_image_assets/TFA_TEXT.png">
+    <img style="padding: 3%; max-height:400px; object-fit: scale-down;" src="./documentation_image_assets/TFA_TEXT.png">
 </details>
 
 
@@ -391,7 +391,7 @@ The final rendered MFA challenge will look something like:
   <summary markdown="span">
     Rendered <code>TFA_CHOICE</code> challenge
   </summary>
-    <img style="padding: 3%; object-fit: scale-down;" src="./documentation_image_assets/TFA_CHOICE.png">
+    <img style="padding: 3%; max-height:400px; object-fit: scale-down;" src="./documentation_image_assets/TFA_CHOICE.png">
 </details>
 
 
@@ -429,7 +429,7 @@ The final rendered MFA challenge will look something like:
   <summary markdown="span">
     Rendered <code>TFA_MULTI</code> challenge
   </summary>
-    <img style="padding: 3%; object-fit: scale-down;" src="./documentation_image_assets/TFA_MULTI.png">
+    <img style="padding: 3%; max-height:400px; object-fit: scale-down;" src="./documentation_image_assets/TFA_MULTI.png">
 </details>
 
 
@@ -461,7 +461,7 @@ The final rendered MFA challenge will look something like:
   <summary markdown="span">
     Rendered <code>TFA_IMAGE</code> challenge
   </summary>
-    <img style="padding: 3%; object-fit: scale-down;" src="./documentation_image_assets/TFA_IMAGE.png">
+    <img style="padding: 3%; max-height:400px; object-fit: scale-down;" src="./documentation_image_assets/TFA_IMAGE.png">
 </details>
 
 
