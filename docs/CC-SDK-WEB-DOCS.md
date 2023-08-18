@@ -9,6 +9,7 @@
 - [ ] Clarify if event listeners are attached on the `events` or `eventSteam` property of the mastercard form element, particularly in the [usage section](#usage)
 - [ ] Add code example for what the Oauth redirect page could look like
 - [ ] Figure out how to optimize the display of the [rendered example images](#1-tfa_text)
+- [ ] Verify that docs display correctly in github
 # Connect Components SDK: Web  
 ## Table of Contents
 - [Connect Components SDK: Web](#connect-components-sdk-web)
