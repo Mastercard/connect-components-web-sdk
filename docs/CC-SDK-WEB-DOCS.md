@@ -339,6 +339,7 @@ This challenge type will present a single input box to the customer and is commo
 Rendering the challenge could look like: 
 ```html
 <mastercard-form 
+  type="mfaChallenge
   id="3ea29b1a-0c2c-4052-a3e1-0cdb856163e8" 
   event-stream-id="da03e052-915b-4ddc-9098-1ecbcc757bea">
     <label for="28bc340a-3b84-4dd1-85eb-cfacf8e0a0e9">Enter name of your first pet.</label>
@@ -373,7 +374,8 @@ The TFA_CHOICE object represents a multiple choice question and answer selection
 ```
 Rendering the challenge could look like: 
 ```html
-<mastercard-form 
+<mastercard-form
+  type="mfaChallenge
   id="3ea29b1a-0c2c-4052-a3e1-0cdb856163e8" 
   event-stream-id="da03e052-915b-4ddc-9098-1ecbcc757bea">
     <p for="28bc340a-3b84-4dd1-85eb-cfacf8e0a0e9">Which high school did you attend?</p>
@@ -412,6 +414,7 @@ This challenge type will present the customer with multiple images to select fro
 Rendering the challenge could look like: 
 ```html
 <mastercard-form 
+  type="mfaChallenge
   id="3ea29b1a-0c2c-4052-a3e1-0cdb856163e8" 
   event-stream-id="da03e052-915b-4ddc-9098-1ecbcc757bea">
     <label for="28bc340a-3b84-4dd1-85eb-cfacf8e0a0e9">Which high school did you attend?</label>
@@ -447,6 +450,7 @@ A TFA_IMAGE challenge will present a captcha-style image the customer will need 
 Rendering the challenge could look like: 
 ```html
 <mastercard-form 
+  type="mfaChallenge
   id="3ea29b1a-0c2c-4052-a3e1-0cdb856163e8" 
   event-stream-id="da03e052-915b-4ddc-9098-1ecbcc757bea">
     <img data="<base64 URI encoded image string>">
