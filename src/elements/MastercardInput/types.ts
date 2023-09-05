@@ -1,6 +1,29 @@
 export type ElementImports = {
   appConfig: import('../../config/types').AppConfig,
   HTMLElement: any,
+  sleep: Function,
+}
+
+export type StyleObject = {
+  overflow?: string,
+  margin?: string,
+  height?: string,
+  width?: string,
+  backgroundColor?: string,
+  border?: string,
+  borderWidth?: string,
+  borderRadius?: string,
+  borderColor?: string,
+  display?: string,
+  color?: string,
+  fontFamily?: string,
+  fontSize?: string,
+  fontWeight?: string,
+  letterSpacing?: string,
+  paddingTop?: string,
+  paddingLeft?: string,
+  paddingRight?: string,
+  paddingBottom?: string,
 }
 
 export type ElementExports = {
@@ -8,6 +31,10 @@ export type ElementExports = {
   observedAttributes(): Array<string>,
   render(): void,
   connectedCallback(): void,
-  generateStyleString(): void,
+  mergeStyle(newStyle: any): void,
+  setStyle(newStyle: any): Promise<void>,
+  generateAutoStyleObject(): Promise<StyleObject>,
   attributeChangedCallback(name: string): void,
+  generateStyleString(styleObject: StyleObject): string,
+  generateStyleObject(newStyle: StyleObject): StyleObject,
 }
