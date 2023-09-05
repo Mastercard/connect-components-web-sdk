@@ -11,7 +11,7 @@ function core_injector() {
   return service;
 
   function sleep(time = 1) {
-    return new Promise(resolve => {
+    return new window.Promise(resolve => {
       setTimeout(() => {
         resolve(null);
       }, time);
