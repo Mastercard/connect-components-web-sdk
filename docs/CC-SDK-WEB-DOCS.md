@@ -1,13 +1,9 @@
 ***OUTSTANDING DOCUMENTATION TASKS:***
-- [ ] Add code example for the [login event](#login-oauth-only) payload
-- [ ] Finalize payload for [error event](#error) payload
 - [ ] Validate all links. Including:
   - [ ] CC API docs, when they have a public domain not just api curio
   - [ ] [Open Banking docs](https://api-reference.finicity.com)
   - [ ] MDN documentation
   - [ ] Add any additional documentation links as appropriate
-- [ ] Clarify if event listeners are attached on the `events` or `eventSteam` property of the mastercard form element, particularly in the [usage section](#usage)
-- [ ] Add code example for what the Oauth redirect page could look like
 - [ ] Figure out how to optimize the display of the [rendered example images](#1-tfa_text)
 - [ ] Verify that docs display correctly in github
 # Connect Components SDK: Web  
@@ -84,9 +80,12 @@ During an Oauth login, this element will need to be added on the page the custom
 
 ### Events
 #### `login` (Oauth only)
-This event is triggered once the customer has completed the **Oauth** login flow with their financial institution. At this point, the calling application may close the **Oauth** popup window.
+This event is triggered once the customer has completed the **Oauth** login flow with their financial institution. At this point, the calling application may close the **Oauth** popup window. An `id` is provided in the `login` event payload and is unique to each `login` event emitted.
+
 ```json
-INSERT LOGIN EVENT PAYLOAD HERE
+{
+  "id": "f1ec72c0-8376-44b3-99ec-f8f1ac0ae77d" 
+}
 ```
 #### `success` 
 When the Mastercard Connect Components API has successfully connected to a customer's account(s), the `success` event will be emitted. The payload for this event is an array of objects. Each object represents a single successful account connection. 
@@ -101,11 +100,9 @@ When the Mastercard Connect Components API has successfully connected to a custo
 ]
 ```
 #### `error` 
-When an error is encountered during the login process, this error will be captured and returned in the `error` event. The event payload will scale-down the needed information to enable your application to guide the customer in resolving the error, if resolvable. The payload on the `error` event will typically scale-down at least `code` and  `message` properties:
+When an error is encountered during the login process, this error will be captured and returned in the `error` event. The event payload will scale-down the needed information to enable your application to guide the customer in resolving the error, if resolvable. The payload on the `error` event contain `code` and  `message` properties:
 ```json
 {
-  //Determine if there are more properties that will be returned with this payload.
-  //will it be a standard error object: https://api-reference.finicity.com/#/rest/models/exceptions/error-message-error?
   "code": 103,
   "message": "The login credentials you entered are not valid for this account. Please log into your bank’s site and make sure you have access and then try again. Error code 103",
 }
@@ -268,8 +265,8 @@ Once the `.submit()` method has been called on the `<mastercard-form>` element, 
 
 For your application to know when the connection is complete, it will need to listen for the [events](#events) described above. For login forms, one of three events will be emitted. Your application will need to have event listeners for [success](#success), [error](#error), and [mfaChallenge](#mfaChallenge) events. To add an event listener, you will call the `addEventListener()` method on the `mastercard-form` element's `events` property. 
 ```javascript
-const mastercardEventStream = document.querySelector('mastercard-form').eventStream;
-mastercardEventStream.events.addEventListener('success', successEvent => {
+const mastercardForm = document.querySelector('mastercard-form');
+mastercardForm.events.addEventListener('success', successEvent => {
   //This simple example handles the done event by posting the event payload to the application's server and displaying a dialog to the user.
   const successfulConnection = new Request(`https://example.app.com/customers/${customerId}/success`, {
     method: 'POST',
@@ -342,6 +339,7 @@ This challenge type will present a single input box to the customer and is commo
 Rendering the challenge could look like: 
 ```html
 <mastercard-form 
+  type="mfaChallenge
   id="3ea29b1a-0c2c-4052-a3e1-0cdb856163e8" 
   event-stream-id="da03e052-915b-4ddc-9098-1ecbcc757bea">
     <label for="28bc340a-3b84-4dd1-85eb-cfacf8e0a0e9">Enter name of your first pet.</label>
@@ -376,7 +374,8 @@ The TFA_CHOICE object represents a multiple choice question and answer selection
 ```
 Rendering the challenge could look like: 
 ```html
-<mastercard-form 
+<mastercard-form
+  type="mfaChallenge
   id="3ea29b1a-0c2c-4052-a3e1-0cdb856163e8" 
   event-stream-id="da03e052-915b-4ddc-9098-1ecbcc757bea">
     <p for="28bc340a-3b84-4dd1-85eb-cfacf8e0a0e9">Which high school did you attend?</p>
@@ -415,6 +414,7 @@ This challenge type will present the customer with multiple images to select fro
 Rendering the challenge could look like: 
 ```html
 <mastercard-form 
+  type="mfaChallenge
   id="3ea29b1a-0c2c-4052-a3e1-0cdb856163e8" 
   event-stream-id="da03e052-915b-4ddc-9098-1ecbcc757bea">
     <label for="28bc340a-3b84-4dd1-85eb-cfacf8e0a0e9">Which high school did you attend?</label>
@@ -450,6 +450,7 @@ A TFA_IMAGE challenge will present a captcha-style image the customer will need 
 Rendering the challenge could look like: 
 ```html
 <mastercard-form 
+  type="mfaChallenge
   id="3ea29b1a-0c2c-4052-a3e1-0cdb856163e8" 
   event-stream-id="da03e052-915b-4ddc-9098-1ecbcc757bea">
     <img data="<base64 URI encoded image string>">
@@ -567,6 +568,37 @@ Again, it is ***vital*** that the page that the customer is redirected to do thr
 1. Load the Connect Components Web SDK
 2. Create a `<mastercard-event-stream>` element
 3. Add event listeners for the `success` and `error` events.
+
+Below is a basic example of what is required on the redirection page for the SDK to properly listen for the `success` event, which is emitted after account discovery has completed.
+
+The `event-stream-id` will be passed as a query parameter to your page. Your application will need to extract that query parameter and assign it to the event-stream element's `event-stream-id` attribute.
+
+`index.html`
 ```html
-//Add HTML/Javascript example of what they redirect page could look like.
+<!DOCTYPE html>
+<html lang='en-US'>
+  <head>
+    <script src='script.js'></script>
+  </head>
+  <body>
+    <mastercard-event-stream></mastercard-event-stream>
+    <!-- Your page contents -->
+  </body>
+    
+```
+`script.js`
+```javascript
+window.addEventListener('DOMContentLoaded', () => {
+  // Most frameworks have a way of extracting query parameters. The following snippet is for illustrative purposes only
+  const eventStreamId = window.location.search.substring(1).split('&').find(entry => entry.includes('event-stream-id=')).split('=')[1];
+  
+  const eventStream = document.querySelector('mastercard-event-stream');
+  eventStream.setAttribute('event-stream-id', eventStreamId);
+  eventStream.events.on('success', successData => {
+    // handle success here
+  });
+  eventStream.events.on('error', errorData => {
+    // handle errors here
+  });
+});
 ```

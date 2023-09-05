@@ -11,6 +11,7 @@ function mastercardForm_injector($inject) {
     constructor () {
       super();
       this.eventStream;
+      this.events;
     }
 
     // - Lifecycle events
@@ -29,6 +30,8 @@ function mastercardForm_injector($inject) {
         this.eventStream.setAttribute('event-stream-id', streamId);
         this.appendChild(this.eventStream);
       }
+      // Proxy this to make it easier to access
+      this.events = this.eventStream.events;
       this.observer = new MutationObserver(() => {
         Array.from(this.querySelectorAll('mastercard-input')).filter(elem => {
           return elem.getAttribute('form-id') !== this.id;
