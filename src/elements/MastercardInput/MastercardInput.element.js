@@ -127,11 +127,20 @@ function mastercardInput_injector($inject) {
     generateInnerStyleObject(newStyle) {
       const validStyleList = [
         'backgroundColor',
-        'color',
         'fontFamily',
+        'fontKerning',
         'fontSize',
+        'fontStretch',
         'fontWeight',
+        'lineHeight',
         'letterSpacing',
+        'textAlign',
+        'textIndent',
+        'textJustify',
+        'textShadow',
+        'textTransform',
+        'verticalAlign',
+        'writingMode',
       ];
       const validated = {};
       for (const key in newStyle) {
