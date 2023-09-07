@@ -97,6 +97,7 @@ checkmarx:manual:
       --repo-url=${CI_PROJECT_URL}/
       --branch=${CI_COMMIT_REF_NAME}
       --cx-flow.zip-exclude='\.git/.*, .*\.png'
+      --filter-severity=Medium
       --f=.
       # --logging.level.org.springframework.web.client.RestTemplate=TRACE
       # --logging.level.com.checkmarx.flow.service=DEBUG
