@@ -75,7 +75,7 @@ function eventStream_injector($inject) {
      */
     _registerEventListener() {
       window.addEventListener('message', event => {
-        if (event.origin.indexOf(appConfig.sdkBase) !== 0) {
+        if (appConfig.sdkBase.indexOf(event.origin) !== 0) {
           console.warn(`Skipping message from ${event.origin}`);
           return;
         }
