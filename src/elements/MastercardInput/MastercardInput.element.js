@@ -10,14 +10,23 @@ function mastercardInput_injector($inject) {
     constructor () {
       super();
 
-      this.innerFrame = document.createElement('iframe');
       let eventTarget = new EventTarget();
+
+      this.addEventListener = (/** @type {string} */ evtName, /** @type {EventListenerOrEventListenerObject | null} */ cb) => {
+        eventTarget.addEventListener(evtName, cb);
+      };
+      this.dispatchEvent = (/** @type {Event} */ evt) => {
+        eventTarget.dispatchEvent(evt);
+      };
+      this.removeEventListener = (/** @type {string} */ evtName, /** @type {EventListenerOrEventListenerObject | null} */ cb) => {
+        eventTarget.removeEventListener(evtName, cb);
+      };
+      // calling 'addEventListener' in Mocha seems to explode, so we're
+      // adding this other method for registering event handlers
+      this.on = this.addEventListener;
+
+      this.innerFrame = document.createElement('iframe');
       // This will give us the ability to listen for events directly on this element
-      Object.assign(this, eventTarget);
-      // There are some issues trying to directly test this.<event method>, like 
-      // addEventListener. This is possibly because of how we've set up our tests, 
-      // or maybe Mocha clobber's our 'this'
-      this._eventTarget = eventTarget;
     }
 
     // - Static methods
@@ -63,26 +72,24 @@ function mastercardInput_injector($inject) {
           input: innerStyleObject
         }
       }, '*');
-      this.style = this.generateOuterStyle(generatedStyle);
+      this.generateOuterStyle(generatedStyle, this.style);
     }
 
     /**
      * @type {import('./types').ElementExports['generateOuterStyle']}
      */
-    generateOuterStyle(generatedStyle) {
+    generateOuterStyle(generatedStyle, target = {}) {
       const validKeys = Object.keys(generatedStyle).filter(key => {
         return key.charAt(0) !== '-';
       });
-      const newStyle = {};
       validKeys.forEach(key => {
         try {
           // @ts-ignore
-          newStyle[key] = generatedStyle[key];
+          target[key] = generatedStyle[key];
         } catch (err) {
           // ignore - some styles can't be modified
         }
       });
-      return newStyle;
     }
 
     /**
@@ -107,14 +114,14 @@ function mastercardInput_injector($inject) {
           case 'inputReady':
             this.render();
             const readyEvent = new Event('ready');
-            this._eventTarget.dispatchEvent(readyEvent);
+            this.dispatchEvent(readyEvent);
             break;
           case 'inputBlur':
             if (evt.data.elementId === this.elemId) {
               const blurEvent = new Event('blur');
               // @ts-ignore
               blurEvent.data = evt.data;
-              this._eventTarget.dispatchEvent(blurEvent);
+              this.dispatchEvent(blurEvent);
             }
             break;
           case 'inputFocus':
@@ -122,7 +129,7 @@ function mastercardInput_injector($inject) {
               const focusEvent = new Event('focus');
               // @ts-ignore
               focusEvent.data = evt.data;
-              this._eventTarget.dispatchEvent(focusEvent);
+              this.dispatchEvent(focusEvent);
             }
             break;
         }

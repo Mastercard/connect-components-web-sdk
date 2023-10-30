@@ -37,5 +37,5 @@ export type ElementExports = {
   attributeChangedCallback(name: string): void,
   generateStyleString(styleObject: StyleObject): string,
   generateStyleObject(newStyle: StyleObject): StyleObject,
-  generateOuterStyle(generatedStyle: any): any
+  generateOuterStyle(generatedStyle: any, target: any): void
 }

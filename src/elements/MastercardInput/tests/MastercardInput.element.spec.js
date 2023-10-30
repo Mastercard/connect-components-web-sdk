@@ -23,12 +23,14 @@ describe('elements/MastercardInput/MastercardInput.element', () => {
     MockElement.prototype.removeChild = sandbox.fake.returns(true);
     // The fact that we can do this proves javascript is weird
     MockElement.prototype.classList = [];
+    MockElement.prototype.style = {};
     MockElement.prototype.classList.add = sandbox.spy();
     MockElement.prototype.classList.remove = sandbox.spy();
     MockElement.prototype.parentElement = new MockElement();
     MockElement.prototype.contentWindow = {
       postMessage: sandbox.spy()
-    }
+    };
+
 
     $inject = {
       appConfig: {
@@ -88,9 +90,10 @@ describe('elements/MastercardInput/MastercardInput.element', () => {
         '-vendor': 'prefixed should be removed',
         'font-family': 'should not be removed'
       };
-      const response = instance.generateOuterStyle(generatedStyle);
-      expect(response).to.haveOwnProperty('font-family').and.to.eq('should not be removed');
-      expect(response).to.not.haveOwnProperty('-vendor');
+      let mockStyleOutput = {}
+      instance.generateOuterStyle(generatedStyle, mockStyleOutput);
+      expect(mockStyleOutput).to.haveOwnProperty('font-family').and.to.eq('should not be removed');
+      expect(mockStyleOutput).to.not.haveOwnProperty('-vendor');
     });
   });
   describe('generateAutoStyleObject method', () => {
@@ -203,7 +206,7 @@ describe('elements/MastercardInput/MastercardInput.element', () => {
     describe('inputReady event', () => {
       it('should call render and dispatch a ready event', (done) => {
         instance.render = sandbox.spy();
-        instance._eventTarget.addEventListener('ready', () => {
+        instance.on('ready', () => {
           expect(instance.render.called).to.be.true;
           done();
         });
@@ -213,7 +216,7 @@ describe('elements/MastercardInput/MastercardInput.element', () => {
     });
     describe('inputBlur event', () => {
       it('should dispatch a blur event', (done) => {
-        instance._eventTarget.addEventListener('blur', () => {
+        instance.on('blur', () => {
           done();
         });
         const mockEvent = { data: { messageType: 'inputBlur' } };
@@ -222,7 +225,7 @@ describe('elements/MastercardInput/MastercardInput.element', () => {
     });
     describe('inputFocus event', () => {
       it('should dispatch a blur event', (done) => {
-        instance._eventTarget.addEventListener('focus', () => {
+        instance.on('focus', () => {
           done();
         });
         const mockEvent = { data: { messageType: 'inputFocus' } };
