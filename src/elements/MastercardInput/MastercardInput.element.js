@@ -111,12 +111,13 @@ function mastercardInput_injector($inject) {
       window.addEventListener('message', (evt) => {
         const eventType = evt.data.messageType;
         switch (eventType) {
-          case 'inputReady':
+          case 'inputReady': {
             this.render();
-            const readyEvent = new Event('ready');
-            this.dispatchEvent(readyEvent);
+            const inputReadyEvent = new Event('ready');
+            this.dispatchEvent(inputReadyEvent);
             break;
-          case 'inputBlur':
+          }
+          case 'inputBlur': {
             if (evt.data.elementId === this.elemId) {
               const blurEvent = new Event('blur');
               // @ts-ignore
@@ -124,7 +125,8 @@ function mastercardInput_injector($inject) {
               this.dispatchEvent(blurEvent);
             }
             break;
-          case 'inputFocus':
+          }
+          case 'inputFocus': {
             if (evt.data.elementId === this.elemId) {
               const focusEvent = new Event('focus');
               // @ts-ignore
@@ -132,6 +134,7 @@ function mastercardInput_injector($inject) {
               this.dispatchEvent(focusEvent);
             }
             break;
+          }
         }
       });
     }
