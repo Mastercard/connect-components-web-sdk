@@ -11,16 +11,15 @@ function mastercardInput_injector($inject) {
       super();
 
       this.innerFrame = document.createElement('iframe');
-      this.innerFrame.classList.add('mastercard-secure-inputs');
-      this.innerFrame.setAttribute('src', 'about:blank');
-      this.styleObject = {};
-      this.scheduledRender = false;
-      // A reference to the currently encoded inner style. This will help us know if we need to rerender the frame, which
-      // deletes user input, so we want to do that as little as possible
-      this.lastEncodedStyle = '';
-      // A reference to setStyle or setMerge, with the original params wrapped in a closure
-      this.styleStrategy = () => { this.setStyle('auto'); };
+      let eventTarget = new EventTarget();
+      // This will give us the ability to listen for events directly on this element
+      Object.assign(this, eventTarget);
+      // There are some issues trying to directly test this.<event method>, like 
+      // addEventListener. This is possibly because of how we've set up our tests, 
+      // or maybe Mocha clobber's our 'this'
+      this._eventTarget = eventTarget;
     }
+
     // - Static methods
     /**
      * @static
@@ -35,47 +34,16 @@ function mastercardInput_injector($inject) {
      * 
      * @type {import('./types').ElementExports['attributeChangedCallback']}
      */
-    async attributeChangedCallback(name) {
-      if (name === 'class') {
-        await this.styleStrategy();
-      }
+    async attributeChangedCallback() {
       this.elemId = this.getAttribute('id');
       this.formId = this.getAttribute('form-id');
       if (!this.elemId || !this.formId || !this.innerFrame) {
         return;
       }
-      if (this.isConnected && !this.scheduledRender) {
+      if (this.isConnected) {
         this.render();
       }
     }
-
-    /**
-     * @type {import('./types').ElementExports['setStyle']}
-     */
-    async setStyle(newStyle) {
-      this.styleStrategy = () => { this.setStyle(newStyle); }
-      if (!newStyle || newStyle === 'auto') {
-        // do auto styling using dummy element
-        this.styleObject = await this.generateAutoStyleObject();
-      } else {
-        this.styleObject = newStyle;
-      }
-      this.render();
-    }
-
-    /**
-     * DO NOT await this! It will block the entire event loop if this is awaited
-     * and the client application has not yet appended this element to the DOM
-     * @type {import('./types').ElementExports['mergeStyle']}
-     */
-    mergeStyle(newStyle = {}) {
-      this.styleStrategy = () => { this.mergeStyle(newStyle); }
-      this.generateAutoStyleObject().then(autoStyle => {
-        this.styleObject = Object.assign(autoStyle, newStyle);
-        this.render();
-      });
-    }
-
     /**
      * The reason for the queue microtask is to prevent the connected callback and the attribute change
      * triggering at the same time and firing off http calls that will ultimately get cancelled. This way
@@ -83,30 +51,38 @@ function mastercardInput_injector($inject) {
      * @type {import('./types').ElementExports['render']}
      */
     async render() {
-      this.scheduledRender = true;
       while (this.isConnected === false) {
         await sleep();
       }
-      const innerStyleObject = this.generateInnerStyleObject(this.styleObject);
-      const encodedStyle = this.generateStyleString(innerStyleObject);
-      if (encodedStyle !== this.lastEncodedStyle) {
-        const src = `${appConfig.sdkBase}/frames/parent/login-forms/${this.formId}/elements/${this.elemId}/contents.html?style=${encodedStyle}`;
-        this.innerFrame.setAttribute('src', src);
-        this.lastEncodedStyle = encodedStyle;
-      }
-      this.style = {};
-      const validKeys = Object.keys(this.styleObject).filter(key => {
+      const generatedStyle = this.generateAutoStyleObject()
+      const innerStyleObject = this.generateInnerStyleObject(generatedStyle);
+      // @ts-ignore
+      this.innerFrame.contentWindow.postMessage({
+        eventType: 'updateStyle',
+        payload: {
+          input: innerStyleObject
+        }
+      }, '*');
+      this.style = this.generateOuterStyle(generatedStyle);
+    }
+
+    /**
+     * @type {import('./types').ElementExports['generateOuterStyle']}
+     */
+    generateOuterStyle(generatedStyle) {
+      const validKeys = Object.keys(generatedStyle).filter(key => {
         return key.charAt(0) !== '-';
       });
+      const newStyle = {};
       validKeys.forEach(key => {
         try {
           // @ts-ignore
-          this.style[key] = this.styleObject[key];
+          newStyle[key] = generatedStyle[key];
         } catch (err) {
           // ignore - some styles can't be modified
         }
-
       });
+      return newStyle;
     }
 
     /**
@@ -118,6 +94,38 @@ function mastercardInput_injector($inject) {
         width: '100%',
         height: '100%',
         border: 'none',
+      });
+      const src = `${appConfig.sdkBase}/frames/parent/login-forms/${this.formId}/elements/${this.elemId}/contents.html`;
+      this.innerFrame.setAttribute('src', src);
+      this.registerInputEvents();
+    }
+
+    registerInputEvents() {
+      window.addEventListener('message', (evt) => {
+        const eventType = evt.data.messageType;
+        switch (eventType) {
+          case 'inputReady':
+            this.render();
+            const readyEvent = new Event('ready');
+            this._eventTarget.dispatchEvent(readyEvent);
+            break;
+          case 'inputBlur':
+            if (evt.data.elementId === this.elemId) {
+              const blurEvent = new Event('blur');
+              // @ts-ignore
+              blurEvent.data = evt.data;
+              this._eventTarget.dispatchEvent(blurEvent);
+            }
+            break;
+          case 'inputFocus':
+            if (evt.data.elementId === this.elemId) {
+              const focusEvent = new Event('focus');
+              // @ts-ignore
+              focusEvent.data = evt.data;
+              this._eventTarget.dispatchEvent(focusEvent);
+            }
+            break;
+        }
       });
     }
 
@@ -154,25 +162,9 @@ function mastercardInput_injector($inject) {
     }
 
     /**
-     * @type {import('./types').ElementExports['generateStyleString']}
-     */
-    generateStyleString(styleObject) {
-      // @ts-ignore
-      const styleString = Object.keys(styleObject).map(key => {
-        // @ts-ignore
-        return `${key}=${styleObject[key]}`;
-      }).join('|');
-      const encodedStyle = window.btoa(styleString);
-      return encodedStyle;
-    }
-
-    /**
      * @type {import('./types').ElementExports['generateAutoStyleObject']}
      */
-    async generateAutoStyleObject() {
-      while (this.isConnected == false) {
-        await sleep();
-      }
+    generateAutoStyleObject() {
       const mockElement = document.createElement('input');
       mockElement.setAttribute('type', 'text');
       this.parentElement.append(mockElement);
@@ -181,17 +173,13 @@ function mastercardInput_injector($inject) {
           mockElement.classList.add(className);
         });
       }
-
       const computedStyle = window.getComputedStyle(mockElement, null);
       const styleObject = {};
-
       Object.keys(computedStyle).forEach(key => {
         // @ts-ignore
         styleObject[key] = computedStyle[key];
       });
-
       this.parentElement.removeChild(mockElement);
-
       return styleObject;
     }
   }

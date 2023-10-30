@@ -33,8 +33,9 @@ export type ElementExports = {
   connectedCallback(): void,
   mergeStyle(newStyle: any): void,
   setStyle(newStyle: any): Promise<void>,
-  generateAutoStyleObject(): Promise<StyleObject>,
+  generateAutoStyleObject(): StyleObject,
   attributeChangedCallback(name: string): void,
   generateStyleString(styleObject: StyleObject): string,
   generateStyleObject(newStyle: StyleObject): StyleObject,
+  generateOuterStyle(generatedStyle: any): any
 }
