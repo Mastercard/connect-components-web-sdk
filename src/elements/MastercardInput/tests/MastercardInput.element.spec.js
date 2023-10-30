@@ -23,9 +23,14 @@ describe('elements/MastercardInput/MastercardInput.element', () => {
     MockElement.prototype.removeChild = sandbox.fake.returns(true);
     // The fact that we can do this proves javascript is weird
     MockElement.prototype.classList = [];
+    MockElement.prototype.style = {};
     MockElement.prototype.classList.add = sandbox.spy();
     MockElement.prototype.classList.remove = sandbox.spy();
     MockElement.prototype.parentElement = new MockElement();
+    MockElement.prototype.contentWindow = {
+      postMessage: sandbox.spy()
+    };
+
 
     $inject = {
       appConfig: {
@@ -42,20 +47,14 @@ describe('elements/MastercardInput/MastercardInput.element', () => {
     };
     global.window = {
       getComputedStyle: sandbox.fake.returns({}),
-      btoa: sandbox.fake.returns('base64 data')
+      btoa: sandbox.fake.returns('base64 data'),
+      addEventListener: sandbox.spy()
     };
     $elem = injector($inject);
     instance = new $elem();
   });
   afterEach(() => {
     sandbox.reset();
-  });
-  describe('constructor', () => {
-    it('should set the style strategy to "auto"', () => {
-      instance.setStyle = sandbox.spy();
-      instance.styleStrategy()
-      expect(instance.setStyle.calledWithExactly('auto')).to.be.true;
-    });
   });
   describe('observedAttributes static method', () => {
     it('returns a list of observable attributes', () => {
@@ -74,25 +73,27 @@ describe('elements/MastercardInput/MastercardInput.element', () => {
       instance.isConnected = false;
       setTimeout(() => {
         instance.isConnected = true;
-      });
+      }, 500);
       instance.render().finally(() => {
         expect($inject.sleep.called).to.be.true;
         done();
       });
     });
     it('should refresh the inner iframe if the style for that frame has changed', async () => {
-      instance.lastEncodedStyle = 'some-encoded-style';
-      instance.generateStyleString = sandbox.fake.returns('some-different-encoded-style');
       await instance.render();
-      // called once on constructor
-      expect(instance.innerFrame.setAttribute.callCount).to.eq(2);
+      expect(instance.innerFrame.contentWindow.postMessage.callCount).to.eq(1);
     });
-    it('should not refresh the inner iframe if no style changes occurred', async () => {
-      instance.lastEncodedStyle = 'some-encoded-style';
-      instance.generateStyleString = sandbox.fake.returns('some-encoded-style');
-      await instance.render();
-      // called once on constructor
-      expect(instance.innerFrame.setAttribute.callCount).to.eq(1);
+  });
+  describe('generateOuterStyle', () => {
+    it('should remove vendor prefixed styles', () => {
+      const generatedStyle = {
+        '-vendor': 'prefixed should be removed',
+        'font-family': 'should not be removed'
+      };
+      let mockStyleOutput = {}
+      instance.generateOuterStyle(generatedStyle, mockStyleOutput);
+      expect(mockStyleOutput).to.haveOwnProperty('font-family').and.to.eq('should not be removed');
+      expect(mockStyleOutput).to.not.haveOwnProperty('-vendor');
     });
   });
   describe('generateAutoStyleObject method', () => {
@@ -119,16 +120,6 @@ describe('elements/MastercardInput/MastercardInput.element', () => {
       global.window.getComputedStyle = sandbox.fake.returns(mockStyle);
       const style = await instance.generateAutoStyleObject();
       expect(style).to.have.keys(['backgroundColor', 'color', 'fontFamily']);
-    });
-    it('should sleep if the component is not connected', (done) => {
-      instance.isConnected = false;
-      setTimeout(() => {
-        instance.isConnected = true;
-      });
-      instance.generateAutoStyleObject().finally(() => {
-        expect($inject.sleep.called).to.be.true;
-        done();
-      });
     });
     it('should remove the mock element when done', () => {
       instance.generateAutoStyleObject();
@@ -157,14 +148,6 @@ describe('elements/MastercardInput/MastercardInput.element', () => {
       instance.attributeChangedCallback('id');
       expect(instance.render.called).to.be.false;
     });
-    it('should not render if one is already scheduled', () => {
-      instance.getAttribute = sandbox.fake.returns('mock-attr');
-      instance.innerFrame = {};
-      instance.scheduledRender = true;
-      instance.isConnected = true;
-      instance.attributeChangedCallback('id');
-      expect(instance.render.called).to.be.false;
-    });
     it('should not render if element is not connected to the DOM', () => {
       instance.getAttribute = sandbox.fake.returns('mock-attr');
       instance.innerFrame = {};
@@ -180,67 +163,16 @@ describe('elements/MastercardInput/MastercardInput.element', () => {
       instance.scheduledRender = false;
       instance.isConnected = true;
       instance.attributeChangedCallback('class');
-      expect(instance.styleStrategy.called).to.be.true;
+      expect(instance.render.called).to.be.true;
     });
     it('should render otherwise', () => {
+      instance.render = sandbox.spy();
       instance.getAttribute = sandbox.fake.returns('mock-attr');
       instance.innerFrame = {};
       instance.scheduledRender = false;
       instance.isConnected = true;
       instance.attributeChangedCallback('id');
       expect(instance.render.called).to.be.true;
-    });
-  });
-  describe('setStyle method', () => {
-    it('should set automatic styling if no style object provided', async () => {
-      instance.generateAutoStyleObject = sandbox.fake.resolves({});
-      await instance.setStyle();
-      expect(instance.generateAutoStyleObject.called).to.be.true;
-    });
-    it('should set automatic styling if "auto" keyword is provided', async () => {
-      instance.generateAutoStyleObject = sandbox.fake.resolves({});
-      await instance.setStyle('auto');
-      expect(instance.generateAutoStyleObject.called).to.be.true;
-    });
-    it('should set style object to whatever was passed', async () => {
-      const mockStyle = { 'backgroundColor': 'black' };
-      await instance.setStyle(mockStyle);
-      expect(instance.styleObject).to.eq(mockStyle);
-    });
-    it('should call render method', async () => {
-      instance.render = sandbox.spy();
-      await instance.setStyle();
-      expect(instance.render.called).to.be.true;
-    });
-    it('should set the styling strategy', async () => {
-      await instance.setStyle();
-      instance.setStyle = sandbox.spy();
-      instance.styleStrategy();
-      expect(instance.setStyle.called).to.be.true;
-    });
-  });
-  describe('mergeStyle method', () => {
-    it('should set the styling strategy', async () => {
-      await instance.mergeStyle();
-      instance.mergeStyle = sandbox.spy();
-      instance.styleStrategy();
-      expect(instance.mergeStyle.called).to.be.true;
-    });
-    it('should call render method', async () => {
-      instance.render = sandbox.spy();
-      await instance.mergeStyle();
-      expect(instance.render.called).to.be.true;
-    });
-    it('should generate automatic styling', async () => {
-      instance.generateAutoStyleObject = sandbox.fake.resolves({});
-      await instance.mergeStyle({});
-      expect(instance.generateAutoStyleObject.called).to.be.true;
-    });
-    it('should merge the automatic style with what was provided', async () => {
-      const mockStyle = { backgroundColor: 'black' };
-      instance.generateAutoStyleObject = sandbox.fake.resolves({ color: 'red' });
-      await instance.mergeStyle(mockStyle);
-      expect(instance.styleObject).to.have.keys(['backgroundColor', 'color']);
     });
   });
   describe('generateInnerStyleObject method', () => {
@@ -263,6 +195,42 @@ describe('elements/MastercardInput/MastercardInput.element', () => {
         'fontWeight',
         'letterSpacing',
       ]);
+    });
+  });
+  describe('registerInputEvents method', () => {
+    let eventHandler;
+    beforeEach(() => {
+      instance.registerInputEvents();
+      eventHandler = global.window.addEventListener.getCall(0).args[1];
+    });
+    describe('inputReady event', () => {
+      it('should call render and dispatch a ready event', (done) => {
+        instance.render = sandbox.spy();
+        instance.on('ready', () => {
+          expect(instance.render.called).to.be.true;
+          done();
+        });
+        const mockEvent = { data: { messageType: 'inputReady' } };
+        eventHandler(mockEvent);
+      });
+    });
+    describe('inputBlur event', () => {
+      it('should dispatch a blur event', (done) => {
+        instance.on('blur', () => {
+          done();
+        });
+        const mockEvent = { data: { messageType: 'inputBlur' } };
+        eventHandler(mockEvent);
+      });
+    });
+    describe('inputFocus event', () => {
+      it('should dispatch a blur event', (done) => {
+        instance.on('focus', () => {
+          done();
+        });
+        const mockEvent = { data: { messageType: 'inputFocus' } };
+        eventHandler(mockEvent);
+      });
     });
   });
 });
