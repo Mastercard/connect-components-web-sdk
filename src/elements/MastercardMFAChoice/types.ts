@@ -32,7 +32,9 @@ export type StyleObject = {
 
 export type ElementExports = {
   constructor(): any,
-  observedAttributes(): Array<string>,
+  observedAttributes: Array<string>,
+  addEventListener(eventName: string, callback: Function): void,
+  removeEventListener(eventName: string, callback: Function): void,
   render(): void,
   connectedCallback(): void,
   mergeStyle(newStyle: any): void,

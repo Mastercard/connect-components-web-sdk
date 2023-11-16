@@ -20,8 +20,10 @@ function mastercardMfaChoice_injector($inject) {
       super();
       this.frameReady = false; // Let's us know when the inner iframe has finished loading
       this.innerFrame = document.createElement('iframe');
+      // This is our internal emitter. Events here are exposed via this
+      // class' addEventListener and removeEventListener methods
       // @ts-ignore
-      Object.assign(this, new MastercardEventEmitter());
+      this.emitter = new MastercardEventEmitter();
     }
 
     // - Static methods
@@ -30,8 +32,17 @@ function mastercardMfaChoice_injector($inject) {
      * @type {import('./types').ElementExports['observedAttributes']}
      */
     static get observedAttributes() {
-      // @ts-ignore
       return ['id', 'form-id', 'class'];
+    }
+
+    /** @type {import('./types').ElementExports['addEventListener']} */
+    addEventListener(eventName, callback) {
+      this.emitter.on(eventName, callback);
+    }
+
+    /** @type {import('./types').ElementExports['removeEventListener']} */
+    removeEventListener(eventName, callback) {
+      this.emitter.off(eventName, callback);
     }
 
     /**
@@ -124,22 +135,21 @@ function mastercardMfaChoice_injector($inject) {
           case 'inputReady': {
             this.frameReady = true;
             this.render();
-            const inputReadyEvent = new Event('ready');
-            this.dispatchEvent(inputReadyEvent);
+            this.emitter.emit('ready');
             break;
           }
           case 'inputBlur': {
-            const blurEvent = new Event('blur');
-            // @ts-ignore
-            blurEvent.data = evt.data;
-            this.dispatchEvent(blurEvent);
+            if (evt.data.elementId !== this.elemId) {
+              return;
+            }
+            this.emitter.emit('blur', evt.data);
             break;
           }
           case 'inputFocus': {
-            const focusEvent = new Event('focus');
-            // @ts-ignore
-            focusEvent.data = evt.data;
-            this.dispatchEvent(focusEvent);
+            if (evt.data.elementId !== this.elemId) {
+              return;
+            }
+            this.emitter.emit('focus', evt.data);
             break;
           }
         }

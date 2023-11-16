@@ -72,6 +72,22 @@ describe('elements/MastercardInput/MastercardInput.element', () => {
         .to.include('id', 'form-id');
     });
   });
+  describe('addEventListener method', () => {
+    it('adds a listener to the emitter', () => {
+      instance.emitter.on = sandbox.spy();
+      const cb = () => {};
+      instance.addEventListener('test', cb);
+      expect(instance.emitter.on.calledWith('test', cb)).to.be.true;
+    });
+  });
+  describe('removeEventListener method', () => {
+    it('removes a listener from the emitter', () => {
+      instance.emitter.off = sandbox.spy();
+      const cb = () => {};
+      instance.removeEventListener('test', cb);
+      expect(instance.emitter.off.calledWith('test', cb)).to.be.true;
+    });
+  });
   describe('connectedCallback method', () => {
     it('should append an iframe', () => {
       instance.connectedCallback();
@@ -212,27 +228,42 @@ describe('elements/MastercardInput/MastercardInput.element', () => {
     });
     describe('inputReady event', () => {
       it('should call render and dispatch a ready event', () => {
+        instance.emitter.emit = sandbox.spy();
         instance.render = sandbox.spy();
         const mockEvent = { origin: 'mock.local', data: { messageType: 'inputReady' } };
         eventHandler(mockEvent);
-        const dispatchedEvent = instance.emit.getCall(0).args[0];
+        const dispatchedEvent = instance.emitter.emit.getCall(0).args[0];
         expect(dispatchedEvent).to.eq('ready');
       });
     });
     describe('inputBlur event', () => {
       it('should dispatch a blur event', () => {
+        instance.emitter.emit = sandbox.spy();
         const mockEvent = { origin: 'mock.local', data: { messageType: 'inputBlur' } };
         eventHandler(mockEvent);
-        const dispatchedEvent = instance.emit.getCall(0).args[0];
+        const dispatchedEvent = instance.emitter.emit.getCall(0).args[0];
         expect(dispatchedEvent).to.eq('blur');
+      });
+      it('should ignore messages for other elements', () => {
+        instance.emitter.emit = sandbox.spy();
+        const mockEvent = { origin: 'mock.local', data: { messageType: 'inputBlur', elementId: 'wrong' } };
+        eventHandler(mockEvent);
+        expect(instance.emitter.emit.called).to.be.false;
       });
     });
     describe('inputFocus event', () => {
       it('should dispatch a blur event', () => {
+        instance.emitter.emit = sandbox.spy();
         const mockEvent = { origin: 'mock.local', data: { messageType: 'inputFocus' } };
         eventHandler(mockEvent);
-        const dispatchedEvent = instance.emit.getCall(0).args[0];
+        const dispatchedEvent = instance.emitter.emit.getCall(0).args[0];
         expect(dispatchedEvent).to.eq('focus');
+      });
+      it('should ignore messages for other elements', () => {
+        instance.emitter.emit = sandbox.spy();
+        const mockEvent = { origin: 'mock.local', data: { messageType: 'inputFocus', elementId: 'wrong' } };
+        eventHandler(mockEvent);
+        expect(instance.emitter.emit.called).to.be.false;
       });
     });
   });

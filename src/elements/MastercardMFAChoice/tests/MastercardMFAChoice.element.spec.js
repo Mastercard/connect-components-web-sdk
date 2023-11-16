@@ -32,12 +32,11 @@ describe('elements/MastercardMFAChoice/MastercardMFAChoice.element', () => {
     MockElement.prototype.contentWindow = {
       postMessage: sandbox.spy()
     };
-    MockElement.prototype.on = sandbox.spy();
-    MockElement.prototype.dispatchEvent = sandbox.spy();
 
     $inject = {
       appConfig: {
-        sdkBase: 'http://mock.local'
+        sdkBase: 'http://mock.local',
+        frameOrigin: 'mock.local'
       },
       HTMLElement: MockElement,
       sleep: sandbox.spy(sleep),
@@ -68,6 +67,22 @@ describe('elements/MastercardMFAChoice/MastercardMFAChoice.element', () => {
     it('returns a list of observable attributes', () => {
       expect($elem.observedAttributes).to.be.an('array').and
         .to.include('id', 'form-id');
+    });
+  });
+  describe('addEventListener method', () => {
+    it('adds a listener to the emitter', () => {
+      instance.emitter.on = sandbox.spy();
+      const cb = () => {};
+      instance.addEventListener('test', cb);
+      expect(instance.emitter.on.calledWith('test', cb)).to.be.true;
+    });
+  });
+  describe('removeEventListener method', () => {
+    it('removes a listener from the emitter', () => {
+      instance.emitter.off = sandbox.spy();
+      const cb = () => {};
+      instance.removeEventListener('test', cb);
+      expect(instance.emitter.off.calledWith('test', cb)).to.be.true;
     });
   });
   describe('connectedCallback method', () => {
@@ -201,27 +216,42 @@ describe('elements/MastercardMFAChoice/MastercardMFAChoice.element', () => {
     });
     describe('inputReady event', () => {
       it('should call render and dispatch a ready event', () => {
+        instance.emitter.emit = sandbox.spy();
         instance.render = sandbox.spy();
-        const mockEvent = { data: { messageType: 'inputReady' } };
+        const mockEvent = { origin: 'mock.local', data: { messageType: 'inputReady' } };
         eventHandler(mockEvent);
-        const dispatchedEvent = instance.dispatchEvent.getCall(0).args[0];
-        expect(dispatchedEvent.type).to.eq('ready');
+        const dispatchedEvent = instance.emitter.emit.getCall(0).args[0];
+        expect(dispatchedEvent).to.eq('ready');
       });
     });
     describe('inputBlur event', () => {
       it('should dispatch a blur event', () => {
-        const mockEvent = { data: { messageType: 'inputBlur' } };
+        instance.emitter.emit = sandbox.spy();
+        const mockEvent = { origin: 'mock.local', data: { messageType: 'inputBlur' } };
         eventHandler(mockEvent);
-        const dispatchedEvent = instance.dispatchEvent.getCall(0).args[0];
-        expect(dispatchedEvent.type).to.eq('blur');
+        const dispatchedEvent = instance.emitter.emit.getCall(0).args[0];
+        expect(dispatchedEvent).to.eq('blur');
+      });
+      it('should ignore messages for other elements', () => {
+        instance.emitter.emit = sandbox.spy();
+        const mockEvent = { origin: 'mock.local', data: { messageType: 'inputBlur', elementId: 'wrong' } };
+        eventHandler(mockEvent);
+        expect(instance.emitter.emit.called).to.be.false;
       });
     });
     describe('inputFocus event', () => {
       it('should dispatch a blur event', () => {
-        const mockEvent = { data: { messageType: 'inputFocus' } };
+        instance.emitter.emit = sandbox.spy();
+        const mockEvent = { origin: 'mock.local', data: { messageType: 'inputFocus' } };
         eventHandler(mockEvent);
-        const dispatchedEvent = instance.dispatchEvent.getCall(0).args[0];
-        expect(dispatchedEvent.type).to.eq('focus');
+        const dispatchedEvent = instance.emitter.emit.getCall(0).args[0];
+        expect(dispatchedEvent).to.eq('focus');
+      });
+      it('should ignore messages for other elements', () => {
+        instance.emitter.emit = sandbox.spy();
+        const mockEvent = { origin: 'mock.local', data: { messageType: 'inputFocus', elementId: 'wrong' } };
+        eventHandler(mockEvent);
+        expect(instance.emitter.emit.called).to.be.false;
       });
     });
   });
