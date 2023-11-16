@@ -1,7 +1,11 @@
 export type ElementImports = {
   appConfig: import('../../config/types').AppConfig,
   HTMLElement: any,
+  MastercardEventEmitter: import('../../core/MastercardEventEmitter/types').MastercardEventEmitter,
   sleep: Function,
+  document: any,
+  window: any,
+  logger: any
 }
 
 export type StyleObject = {
