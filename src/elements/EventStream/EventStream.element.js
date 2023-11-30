@@ -2,7 +2,7 @@
  * @param {import('./types').ElementImports} $inject 
  */
 function eventStream_injector($inject) {
-  const { appConfig, HTMLElement } = $inject;
+  const { appConfig, HTMLElement, logger } = $inject;
 
   return class MastercardEventStream extends HTMLElement {
     /**
@@ -37,7 +37,6 @@ function eventStream_injector($inject) {
       this.iframe = document.createElement('iframe');
       $elem.append(this.iframe);
       $elem.style.display = 'none';
-      this._isConnected = true;
       if (this.eventStreamId) {
         this._bindFrameSource();
         this._registerEventListener();
@@ -47,7 +46,7 @@ function eventStream_injector($inject) {
      * @type {import('./types').ElementExports['attributeChangedCallback']}
      */
     attributeChangedCallback(name, _oldValue, newValue) {
-      if (!this._isConnected) {
+      if (!this.isConnected) {
         return;
       }
       if (name === 'event-stream-id') {
@@ -76,7 +75,7 @@ function eventStream_injector($inject) {
     _registerEventListener() {
       window.addEventListener('message', event => {
         if (appConfig.sdkBase.indexOf(event.origin) !== 0) {
-          console.warn(`Skipping message from ${event.origin}`);
+          logger.warn(`Skipping message from ${event.origin}`);
           return;
         }
         /*

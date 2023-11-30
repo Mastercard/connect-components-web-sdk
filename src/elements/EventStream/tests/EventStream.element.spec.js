@@ -21,7 +21,10 @@ describe('elements/EventStream/EventStream.service', () => {
       appConfig: {
         sdkBase: 'mock'
       },
-      HTMLElement: MockElement
+      HTMLElement: MockElement,
+      logger: {
+        warn: sandbox.spy(),
+      }
     };
 
     global.document = {
@@ -32,9 +35,6 @@ describe('elements/EventStream/EventStream.service', () => {
     global.window = {
       addEventListener: sandbox.spy()
     };
-    global.console = {
-      warn: sandbox.spy()
-    }
     $elem = injector($inject);
     instance = new $elem();
   });
@@ -96,19 +96,19 @@ describe('elements/EventStream/EventStream.service', () => {
       instance._registerEventListener = sandbox.spy();
     });
     it('should not do anything if the element is not mounted to the DOM', () => {
-      instance._isConnected = false;
+      instance.isConnected = false;
       instance.attributeChangedCallback('event-stream-id', null, '12345');
       expect(instance._bindFrameSource.called).to.be.false;
       expect(instance._registerEventListener.called).to.be.false;
     });
     it('should not do anything if the changed attribute is not event-stream-id', () => {
-      instance._isConnected = true;
+      instance.isConnected = true;
       instance.attributeChangedCallback('not-event-stream-id', null, '12345');
       expect(instance._bindFrameSource.called).to.be.false;
       expect(instance._registerEventListener.called).to.be.false;
     });
     it('should rebind the event source if the event stream id changes', () => {
-      instance._isConnected = true;
+      instance.isConnected = true;
       instance.attributeChangedCallback('event-stream-id', null, '12345');
       expect(instance._bindFrameSource.called).to.be.true;
       expect(instance._registerEventListener.called).to.be.true;

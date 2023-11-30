@@ -2,6 +2,11 @@
 export type ElementImports = {
   appConfig: import('../../config/types').AppConfig,
   HTMLElement: any,
+  logger: {
+    log: Function,
+    warn: Function,
+    error: Function,
+  }
 }
 export type ElementExports = {
   constructor(): any,
