@@ -2,31 +2,31 @@
  * @param {import('./types').ElementImports} $inject
  */
 function mastercardInput_injector($inject) {
-  const { appConfig, HTMLElement, sleep } = $inject;
+  const {
+    appConfig,
+    HTMLElement,
+    sleep,
+    window,
+    document,
+    logger,
+    MastercardEventEmitter
+  } = $inject;
+
+  /** @type {HTMLElement} */
+  // @ts-ignore
   return class MastercardInput extends HTMLElement {
     /**
       * @type {import('./types').ElementExports['constructor']}
       */
     constructor () {
       super();
-
-      let eventTarget = new EventTarget();
-
-      this.addEventListener = (/** @type {string} */ evtName, /** @type {EventListenerOrEventListenerObject | null} */ cb) => {
-        eventTarget.addEventListener(evtName, cb);
-      };
-      this.dispatchEvent = (/** @type {Event} */ evt) => {
-        eventTarget.dispatchEvent(evt);
-      };
-      this.removeEventListener = (/** @type {string} */ evtName, /** @type {EventListenerOrEventListenerObject | null} */ cb) => {
-        eventTarget.removeEventListener(evtName, cb);
-      };
-      // calling 'addEventListener' in Mocha seems to explode, so we're
-      // adding this other method for registering event handlers
-      this.on = this.addEventListener;
-
+      this.frameReady = false; // Let's us know when the inner iframe has finished loading
       this.innerFrame = document.createElement('iframe');
-      // This will give us the ability to listen for events directly on this element
+
+      // This is our internal emitter. Events here are exposed via this
+      // class' addEventListener and removeEventListener methods
+      // @ts-ignore
+      this.emitter = new MastercardEventEmitter();
     }
 
     // - Static methods
@@ -35,12 +35,20 @@ function mastercardInput_injector($inject) {
      * @type {import('./types').ElementExports['observedAttributes']}
      */
     static get observedAttributes() {
-      // @ts-ignore
       return ['id', 'form-id', 'class'];
     }
 
+    /** @type {import('./types').ElementExports['addEventListener']} */
+    addEventListener(eventName, callback) {
+      this.emitter.on(eventName, callback);
+    }
+
+    /** @type {import('./types').ElementExports['removeEventListener']} */
+    removeEventListener(eventName, callback) {
+      this.emitter.off(eventName, callback);
+    }
+
     /**
-     * 
      * @type {import('./types').ElementExports['attributeChangedCallback']}
      */
     async attributeChangedCallback() {
@@ -49,7 +57,7 @@ function mastercardInput_injector($inject) {
       if (!this.elemId || !this.formId || !this.innerFrame) {
         return;
       }
-      if (this.isConnected) {
+      if (this.isConnected && this.frameReady) {
         this.render();
       }
     }
@@ -60,7 +68,7 @@ function mastercardInput_injector($inject) {
      * @type {import('./types').ElementExports['render']}
      */
     async render() {
-      while (this.isConnected === false) {
+      while (this.isConnected === false || this.frameReady === false) {
         await sleep();
       }
       const generatedStyle = this.generateAutoStyleObject()
@@ -71,14 +79,14 @@ function mastercardInput_injector($inject) {
         payload: {
           input: innerStyleObject
         }
-      }, '*');
+      }, appConfig.frameOrigin);
       this.generateOuterStyle(generatedStyle, this.style);
     }
 
     /**
      * @type {import('./types').ElementExports['generateOuterStyle']}
      */
-    generateOuterStyle(generatedStyle, target = {}) {
+    generateOuterStyle(generatedStyle, target) {
       const validKeys = Object.keys(generatedStyle).filter(key => {
         return key.charAt(0) !== '-';
       });
@@ -108,31 +116,31 @@ function mastercardInput_injector($inject) {
     }
 
     registerInputEvents() {
-      window.addEventListener('message', (evt) => {
+      window.addEventListener('message', (/** @type {{ origin: any; data: { messageType: any; elementId: any; }; }} */ evt) => {
+        if (evt.origin !== appConfig.frameOrigin) {
+          logger.warn('Ignoring message from unknown origin');
+          return;
+        }
         const eventType = evt.data.messageType;
         switch (eventType) {
           case 'inputReady': {
+            this.frameReady = true;
             this.render();
-            const inputReadyEvent = new Event('ready');
-            this.dispatchEvent(inputReadyEvent);
+            this.emitter.emit('ready');
             break;
           }
           case 'inputBlur': {
-            if (evt.data.elementId === this.elemId) {
-              const blurEvent = new Event('blur');
-              // @ts-ignore
-              blurEvent.data = evt.data;
-              this.dispatchEvent(blurEvent);
+            if (evt.data.elementId !== this.elemId) {
+              return;
             }
+            this.emitter.emit('blur', evt.data);
             break;
           }
           case 'inputFocus': {
-            if (evt.data.elementId === this.elemId) {
-              const focusEvent = new Event('focus');
-              // @ts-ignore
-              focusEvent.data = evt.data;
-              this.dispatchEvent(focusEvent);
+            if (evt.data.elementId !== this.elemId) {
+              return;
             }
+            this.emitter.emit('focus', evt.data);
             break;
           }
         }

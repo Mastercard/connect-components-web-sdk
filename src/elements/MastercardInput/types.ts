@@ -1,7 +1,11 @@
 export type ElementImports = {
   appConfig: import('../../config/types').AppConfig,
   HTMLElement: any,
+  MastercardEventEmitter: import('../../core/MastercardEventEmitter/types').MastercardEventEmitter,
   sleep: Function,
+  document: any,
+  window: any,
+  logger: any
 }
 
 export type StyleObject = {
@@ -28,7 +32,9 @@ export type StyleObject = {
 
 export type ElementExports = {
   constructor(): any,
-  observedAttributes(): Array<string>,
+  observedAttributes: Array<string>,
+  addEventListener(eventName: string, callback: Function): void,
+  removeEventListener(eventName: string, callback: Function): void,
   render(): void,
   connectedCallback(): void,
   mergeStyle(newStyle: any): void,

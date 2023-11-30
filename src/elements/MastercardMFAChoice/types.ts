@@ -1,13 +1,51 @@
 export type ElementImports = {
   appConfig: import('../../config/types').AppConfig,
   HTMLElement: any,
+  sleep: Function,
+  document: any,
+  window: any,
+  logger: any,
+  MastercardEventEmitter: import('../../core/MastercardEventEmitter/types').MastercardEventEmitter,
+}
+
+export type StyleObject = {
+  overflow?: string,
+  margin?: string,
+  height?: string,
+  width?: string,
+  backgroundColor?: string,
+  border?: string,
+  borderWidth?: string,
+  borderRadius?: string,
+  borderColor?: string,
+  display?: string,
+  color?: string,
+  fontFamily?: string,
+  fontSize?: string,
+  fontWeight?: string,
+  letterSpacing?: string,
+  paddingTop?: string,
+  paddingLeft?: string,
+  paddingRight?: string,
+  paddingBottom?: string,
 }
 
 export type ElementExports = {
   constructor(): any,
-  observedAttributes(): Array<string>,
+  observedAttributes: Array<string>,
+  addEventListener(eventName: string, callback: Function): void,
+  removeEventListener(eventName: string, callback: Function): void,
   render(): void,
   connectedCallback(): void,
-  generateStyleString(): void,
+  mergeStyle(newStyle: any): void,
+  setStyle(newStyle: any): Promise<void>,
+  generateAutoStyleObject(): StyleObject,
   attributeChangedCallback(name: string): void,
+  generateInnerStyleObject(newStyle: StyleObject): StyleObject,
+  generateOuterStyle(generatedStyle: any, target: any): void,
+  generateInputStyleObject(): any,
+  generateRadioStyleObject(): any,
+  generateImageStyleObject(): any,
+  generateLabelStyleObject(): any,
+  registerInputEvents(): void
 }
