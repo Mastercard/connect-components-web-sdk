@@ -65,13 +65,15 @@ function mastercardInput_injector($inject) {
       }
       const generatedStyle = this.generateAutoStyleObject()
       const innerStyleObject = this.generateInnerStyleObject(generatedStyle);
+      const targetOrigin = appConfig.sdkBase;
+
       // @ts-ignore
       this.innerFrame.contentWindow.postMessage({
         eventType: 'updateStyle',
         payload: {
           input: innerStyleObject
         }
-      }, '*');
+      }, targetOrigin);
       this.generateOuterStyle(generatedStyle, this.style);
     }
 

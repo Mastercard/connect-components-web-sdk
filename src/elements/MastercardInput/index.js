@@ -1,5 +1,5 @@
 import mastercardInputInjector from './MastercardInput.element';
-import appConfig from '../../config/app.config';
+import { appConfig } from '../../config/app.config';
 import { sleep } from '../../core';
 
 const $inject = {

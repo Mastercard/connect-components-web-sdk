@@ -1,5 +1,5 @@
 import mastercardFormInjector from './MastercardForm.element';
-import appConfig from '../../config/app.config';
+import { appConfig } from '../../config/app.config';
 
 const $inject = {
   appConfig,
