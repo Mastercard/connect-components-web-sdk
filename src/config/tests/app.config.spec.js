@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import config from '../app.config';
+import { appConfig as config } from '../app.config';
 
 describe('config/app.config', () => {
 
