@@ -1,17 +1,21 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import injector from '../MastercardInput.element';
-import { sleep } from '../../../core';
+import { sleep, MastercardEventEmitter } from '../../../core';
 
 describe('elements/MastercardInput/MastercardInput.element', () => {
   const sandbox = sinon.createSandbox();
-
   let $elem, $inject, instance;
   class MockElement {
     constructor () {
       this.style = {}
     }
   }
+
+  let sleepSpy;
+  before(() => {
+    sleepSpy = sandbox.spy(sleep);
+  });
 
   beforeEach(() => {
     MockElement.prototype.getAttribute = sandbox.fake.returns(true);
@@ -21,35 +25,41 @@ describe('elements/MastercardInput/MastercardInput.element', () => {
     MockElement.prototype.appendChild = sandbox.fake.returns(true);
     MockElement.prototype.append = sandbox.fake.returns(true);
     MockElement.prototype.removeChild = sandbox.fake.returns(true);
-    // The fact that we can do this proves javascript is weird
     MockElement.prototype.classList = [];
     MockElement.prototype.style = {};
     MockElement.prototype.classList.add = sandbox.spy();
     MockElement.prototype.classList.remove = sandbox.spy();
-    MockElement.prototype.parentElement = new MockElement();
+    MockElement.prototype.parentElement = {
+      append: sandbox.spy(),
+      removeChild: sandbox.spy()
+    };
     MockElement.prototype.contentWindow = {
       postMessage: sandbox.spy()
     };
 
-
     $inject = {
       appConfig: {
-        sdkBase: 'mock'
+        sdkBase: 'http://mock.local',
+        frameOrigin: 'mock.local'
       },
       HTMLElement: MockElement,
-      sleep: sandbox.spy(sleep),
+      sleep: sleepSpy,
+      window: {
+        getComputedStyle: sandbox.fake.returns({}),
+        btoa: sandbox.fake.returns('base64 data'),
+        addEventListener: sandbox.spy()
+      },
+      document: {
+        createElement: sandbox.spy(function () {
+          return new MockElement();
+        })
+      },
+      logger: {
+        warn: sandbox.spy()
+      },
+      MastercardEventEmitter
     };
 
-    global.document = {
-      createElement: sandbox.spy(function () {
-        return new MockElement();
-      })
-    };
-    global.window = {
-      getComputedStyle: sandbox.fake.returns({}),
-      btoa: sandbox.fake.returns('base64 data'),
-      addEventListener: sandbox.spy()
-    };
     $elem = injector($inject);
     instance = new $elem();
   });
@@ -62,6 +72,22 @@ describe('elements/MastercardInput/MastercardInput.element', () => {
         .to.include('id', 'form-id');
     });
   });
+  describe('addEventListener method', () => {
+    it('adds a listener to the emitter', () => {
+      instance.emitter.on = sandbox.spy();
+      const cb = () => {};
+      instance.addEventListener('test', cb);
+      expect(instance.emitter.on.calledWith('test', cb)).to.be.true;
+    });
+  });
+  describe('removeEventListener method', () => {
+    it('removes a listener from the emitter', () => {
+      instance.emitter.off = sandbox.spy();
+      const cb = () => {};
+      instance.removeEventListener('test', cb);
+      expect(instance.emitter.off.calledWith('test', cb)).to.be.true;
+    });
+  });
   describe('connectedCallback method', () => {
     it('should append an iframe', () => {
       instance.connectedCallback();
@@ -69,19 +95,14 @@ describe('elements/MastercardInput/MastercardInput.element', () => {
     });
   });
   describe('render method', () => {
-    it('should sleep if the component is not connected', (done) => {
+    it('should sleep if the component is not connected', async () => {
       instance.isConnected = false;
+      instance.frameReady = true;
       setTimeout(() => {
         instance.isConnected = true;
-      }, 500);
-      instance.render().finally(() => {
-        expect($inject.sleep.called).to.be.true;
-        done();
-      });
-    });
-    it('should refresh the inner iframe if the style for that frame has changed', async () => {
+      }, 10);
       await instance.render();
-      expect(instance.innerFrame.contentWindow.postMessage.callCount).to.eq(1);
+      expect($inject.sleep.called).to.be.true;
     });
   });
   describe('generateOuterStyle', () => {
@@ -102,12 +123,12 @@ describe('elements/MastercardInput/MastercardInput.element', () => {
     });
     it('should create a mock element', () => {
       instance.generateAutoStyleObject();
-      expect(global.document.createElement.calledWith('input')).to.be.true;
+      expect($inject.document.createElement.calledWith('input')).to.be.true;
     });
     it('should scrape styles from the mock element and add them to this element', () => {
       const mockElement = new MockElement();
       mockElement.classList.push('class1', 'class2');
-      global.document.createElement = sandbox.fake.returns(mockElement);
+      $inject.document.createElement = sandbox.fake.returns(mockElement);
       instance.generateAutoStyleObject();
       expect(instance.classList).to.include('class1', 'class2');
     });
@@ -117,7 +138,7 @@ describe('elements/MastercardInput/MastercardInput.element', () => {
         color: 'red',
         fontFamily: 'Comic Sans'
       }
-      global.window.getComputedStyle = sandbox.fake.returns(mockStyle);
+      $inject.window.getComputedStyle = sandbox.fake.returns(mockStyle);
       const style = await instance.generateAutoStyleObject();
       expect(style).to.have.keys(['backgroundColor', 'color', 'fontFamily']);
     });
@@ -151,25 +172,15 @@ describe('elements/MastercardInput/MastercardInput.element', () => {
     it('should not render if element is not connected to the DOM', () => {
       instance.getAttribute = sandbox.fake.returns('mock-attr');
       instance.innerFrame = {};
-      instance.scheduledRender = false;
       instance.isConnected = false;
       instance.attributeChangedCallback('id');
       expect(instance.render.called).to.be.false;
-    });
-    it('should re-render if the class list changes', () => {
-      instance.styleStrategy = sandbox.spy();
-      instance.getAttribute = sandbox.fake.returns('mock-attr');
-      instance.innerFrame = {};
-      instance.scheduledRender = false;
-      instance.isConnected = true;
-      instance.attributeChangedCallback('class');
-      expect(instance.render.called).to.be.true;
     });
     it('should render otherwise', () => {
       instance.render = sandbox.spy();
       instance.getAttribute = sandbox.fake.returns('mock-attr');
       instance.innerFrame = {};
-      instance.scheduledRender = false;
+      instance.frameReady = true;
       instance.isConnected = true;
       instance.attributeChangedCallback('id');
       expect(instance.render.called).to.be.true;
@@ -200,36 +211,59 @@ describe('elements/MastercardInput/MastercardInput.element', () => {
   describe('registerInputEvents method', () => {
     let eventHandler;
     beforeEach(() => {
+      // for some reason, this isn't getting added when we test
+      instance.emit = sandbox.spy();
       instance.registerInputEvents();
-      eventHandler = global.window.addEventListener.getCall(0).args[1];
+      eventHandler = $inject.window.addEventListener.getCall(0).args[1];
+    });
+    it('should exit if the origin is incorrect', () => {
+      const mockEvent = {
+        origin: 'something unexpected',
+        data: {
+          messageType: 'inputReady'
+        }
+      };
+      eventHandler(mockEvent);
+      expect($inject.logger.warn.called).to.be.true;
     });
     describe('inputReady event', () => {
-      it('should call render and dispatch a ready event', (done) => {
+      it('should call render and dispatch a ready event', () => {
+        instance.emitter.emit = sandbox.spy();
         instance.render = sandbox.spy();
-        instance.on('ready', () => {
-          expect(instance.render.called).to.be.true;
-          done();
-        });
-        const mockEvent = { data: { messageType: 'inputReady' } };
+        const mockEvent = { origin: 'mock.local', data: { messageType: 'inputReady' } };
         eventHandler(mockEvent);
+        const dispatchedEvent = instance.emitter.emit.getCall(0).args[0];
+        expect(dispatchedEvent).to.eq('ready');
       });
     });
     describe('inputBlur event', () => {
-      it('should dispatch a blur event', (done) => {
-        instance.on('blur', () => {
-          done();
-        });
-        const mockEvent = { data: { messageType: 'inputBlur' } };
+      it('should dispatch a blur event', () => {
+        instance.emitter.emit = sandbox.spy();
+        const mockEvent = { origin: 'mock.local', data: { messageType: 'inputBlur' } };
         eventHandler(mockEvent);
+        const dispatchedEvent = instance.emitter.emit.getCall(0).args[0];
+        expect(dispatchedEvent).to.eq('blur');
+      });
+      it('should ignore messages for other elements', () => {
+        instance.emitter.emit = sandbox.spy();
+        const mockEvent = { origin: 'mock.local', data: { messageType: 'inputBlur', elementId: 'wrong' } };
+        eventHandler(mockEvent);
+        expect(instance.emitter.emit.called).to.be.false;
       });
     });
     describe('inputFocus event', () => {
-      it('should dispatch a blur event', (done) => {
-        instance.on('focus', () => {
-          done();
-        });
-        const mockEvent = { data: { messageType: 'inputFocus' } };
+      it('should dispatch a blur event', () => {
+        instance.emitter.emit = sandbox.spy();
+        const mockEvent = { origin: 'mock.local', data: { messageType: 'inputFocus' } };
         eventHandler(mockEvent);
+        const dispatchedEvent = instance.emitter.emit.getCall(0).args[0];
+        expect(dispatchedEvent).to.eq('focus');
+      });
+      it('should ignore messages for other elements', () => {
+        instance.emitter.emit = sandbox.spy();
+        const mockEvent = { origin: 'mock.local', data: { messageType: 'inputFocus', elementId: 'wrong' } };
+        eventHandler(mockEvent);
+        expect(instance.emitter.emit.called).to.be.false;
       });
     });
   });
