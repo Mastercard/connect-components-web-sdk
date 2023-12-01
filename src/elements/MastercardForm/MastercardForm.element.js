@@ -1,6 +1,4 @@
-/**
- * @param {import('./types').ElementImports} $inject 
- */
+/** @param {import('./types').ElementImports} $inject */
 function mastercardForm_injector($inject) {
   const { appConfig, HTMLElement, crypto } = $inject;
 
@@ -10,8 +8,8 @@ function mastercardForm_injector($inject) {
      */
     constructor () {
       super();
-      this.eventStream;
-      this.events;
+      this.eventStream = null;
+      this.events = null;
     }
 
     // - Lifecycle events
@@ -82,4 +80,4 @@ function mastercardForm_injector($inject) {
   }
 }
 
-export default mastercardForm_injector;
+export { mastercardForm_injector };

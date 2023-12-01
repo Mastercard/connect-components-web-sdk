@@ -1,6 +1,4 @@
-/**
- * @param {import('./types').ElementImports} $inject
- */
+/** @param {import('./types').ElementImports} $inject */
 function mastercardMfaChoice_injector($inject) {
   const {
     appConfig,
@@ -292,4 +290,4 @@ function mastercardMfaChoice_injector($inject) {
   }
 }
 
-export default mastercardMfaChoice_injector;
+export { mastercardMfaChoice_injector };

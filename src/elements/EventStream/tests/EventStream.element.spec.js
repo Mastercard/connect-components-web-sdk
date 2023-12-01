@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import injector from '../EventStream.element';
-import { randomUUID as uuid } from 'crypto';
+import { eventStream_injector as injector } from '../EventStream.element';
+import { randomUUID as uuid, randomInt } from 'crypto';
 
 describe('elements/EventStream/EventStream.service', () => {
   const sandbox = sinon.createSandbox();
@@ -19,7 +19,8 @@ describe('elements/EventStream/EventStream.service', () => {
   beforeEach(() => {
     $inject = {
       appConfig: {
-        sdkBase: 'mock'
+        sdkBase: 'mock',
+        frameOrigin: 'mock'
       },
       HTMLElement: MockElement,
       logger: {
@@ -148,10 +149,10 @@ describe('elements/EventStream/EventStream.service', () => {
       it('should dispatch events we receive', () => {
         const mockEvent = {
           origin: 'mock', // From our $inject object up top
+          isPublic: true,
           data: {
             id: '12345',
             eventType: 'mock-event',
-            isPublic: true
           }
         };
         cb(mockEvent);
@@ -166,7 +167,7 @@ describe('elements/EventStream/EventStream.service', () => {
       });
       it('should return false on invalid UUIDs', () => {
         for (let i = 0; i < 100; i++) {
-          expect(instance._isValidEventStreamId(`${Math.random()}`)).to.be.false;
+          expect(instance._isValidEventStreamId(`${randomInt(10000)}`)).to.be.false;
         }
       });
     });

@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import injector from '../MastercardForm.element';
+import { mastercardForm_injector as injector } from '../MastercardForm.element';
 import { randomUUID } from 'crypto';
 
 describe('elements/MastercardForm/MastercardForm.service', () => {
@@ -72,7 +72,7 @@ describe('elements/MastercardForm/MastercardForm.service', () => {
       instance.querySelector = sandbox.fake.returns(null);
       instance.getAttribute = sandbox.fake.returns(null);
       instance.connectedCallback();
-      expect(instance.eventStream).to.be.undefined;
+      expect(instance.eventStream).to.be.null;
     });
     it('should create a mutation observer and start observing', () => {
       instance.connectedCallback();

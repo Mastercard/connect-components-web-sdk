@@ -1,6 +1,4 @@
-/**
- * @param {import('./types').ElementImports} $inject
- */
+/** @param {import('./types').ElementImports} $inject */
 function mastercardInput_injector($inject) {
   const {
     appConfig,
@@ -73,6 +71,7 @@ function mastercardInput_injector($inject) {
       }
       const generatedStyle = this.generateAutoStyleObject()
       const innerStyleObject = this.generateInnerStyleObject(generatedStyle);
+
       // @ts-ignore
       this.innerFrame.contentWindow.postMessage({
         eventType: 'updateStyle',
@@ -203,4 +202,4 @@ function mastercardInput_injector($inject) {
   }
 }
 
-export default mastercardInput_injector;
+export { mastercardInput_injector };

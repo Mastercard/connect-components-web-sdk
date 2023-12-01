@@ -1,5 +1,5 @@
-import appConfig from '../../config/app.config';
-import mastercardMfaChoice_injector from './MastercardMFAChoice.element';
+import appConfig from '../../config/app';
+import { mastercardMfaChoice_injector } from './MastercardMFAChoice.element';
 import { sleep, MastercardEventEmitter } from '../../core';
 
 const $inject = {

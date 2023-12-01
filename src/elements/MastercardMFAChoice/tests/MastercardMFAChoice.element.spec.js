@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { sleep, MastercardEventEmitter } from '../../../core';
 import sinon from 'sinon';
-import injector from '../MastercardMFAChoice.element';
+import { mastercardMfaChoice_injector as injector } from '../MastercardMFAChoice.element';
 
 describe('elements/MastercardMFAChoice/MastercardMFAChoice.element', () => {
   const sandbox = sinon.createSandbox();

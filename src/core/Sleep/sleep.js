@@ -18,4 +18,4 @@ function sleep_injector($inject) {
 
 }
 
-export default sleep_injector;
+export { sleep_injector };

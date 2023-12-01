@@ -1,5 +1,5 @@
-import appConfig from '../../config/app.config';
-import mastercardInputInjector from './MastercardInput.element';
+import appConfig from '../../config/app';
+import { mastercardInput_injector } from './MastercardInput.element';
 import { sleep, MastercardEventEmitter } from '../../core';
 
 const $inject = {
@@ -13,4 +13,4 @@ const $inject = {
 };
 
 // @ts-ignore
-export default mastercardInputInjector($inject);
+export default mastercardInput_injector($inject);
