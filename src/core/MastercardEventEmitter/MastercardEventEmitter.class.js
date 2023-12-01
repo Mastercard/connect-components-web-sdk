@@ -40,4 +40,4 @@ function mastercardEventEmitter_injector() {
     }
   }
 }
-export default mastercardEventEmitter_injector;
+export { mastercardEventEmitter_injector };

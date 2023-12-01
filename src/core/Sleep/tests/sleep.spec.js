@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import injector from '../sleep';
+import { sleep_injector as injector } from '../sleep';
 
 describe('core/Sleep/sleep.js', () => {
   const sandbox = sinon.createSandbox();

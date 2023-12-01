@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import injector from '../MastercardEventEmitter.class';
+import { mastercardEventEmitter_injector as injector } from '../MastercardEventEmitter.class';
 
 describe('core/MastercardEventEmitter/MastercardEventEmitter.class', () => {
   const sandbox = sinon.createSandbox();
