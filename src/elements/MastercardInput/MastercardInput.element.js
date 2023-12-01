@@ -1,6 +1,4 @@
-/**
- * @param {import('./types').ElementImports} $inject
- */
+/** @param {import('./types').ElementImports} $inject */
 function mastercardInput_injector($inject) {
   const {
     appConfig,

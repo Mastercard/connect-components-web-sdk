@@ -1,4 +1,4 @@
-import { appConfig } from '../../config/app.config';
+import appConfig from '../../config/app';
 import mastercardInputInjector from './MastercardInput.element';
 import { sleep, MastercardEventEmitter } from '../../core';
 
