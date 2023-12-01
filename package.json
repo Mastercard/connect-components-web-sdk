@@ -13,6 +13,7 @@
     "test": "npm run test:unit",
     "test:unit": "mocha 'src/**/*.spec.js'",
     "test:unit:coverage": "nyc npm run test:unit",
+    "quality:unit-coverage": "npm run test:unit:coverage",
     "quality:types": "tsc",
     "quality:lint": "eslint --ext js .",
     "quality:lint:fix": "eslint --ext js . --fix",
