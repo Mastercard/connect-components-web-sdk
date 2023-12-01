@@ -140,7 +140,7 @@ package-audit:
   stage: cs-security
   allow_failure: true
   script:
-    - npm audit ---production --audit-level=high
+    - npm run security:package-audit
   cache:
     key: ${CI_COMMIT_REF_SLUG}
     paths:

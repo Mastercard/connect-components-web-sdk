@@ -15,7 +15,8 @@
     "test:unit:coverage": "nyc npm run test:unit",
     "quality:types": "tsc",
     "quality:lint": "eslint --ext js .",
-    "quality:lint:fix": "eslint --ext js . --fix"
+    "quality:lint:fix": "eslint --ext js . --fix",
+    "security:package-audit": "npm audit ---production --audit-level=high"
   },
   "repository": {
     "type": "git",
@@ -61,10 +62,5 @@
       "src/**/index.js",
       "src/**/*.spec.js"
     ]
-  },
-  "dependencies": {
-    "cheerio": "^1.0.0-rc.12",
-    "express": "^4.18.2",
-    "superagent": "^8.1.2"
   }
 }
