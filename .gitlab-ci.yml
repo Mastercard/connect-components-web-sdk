@@ -3,6 +3,8 @@ image: node:18
 stages:
   - install
   - build
+  - cs-quality
+  - cs-security
   - test
   - scan
 
@@ -77,7 +79,7 @@ lint:
 #     - develop
 #     - /^hotfix\/.*$/
 #   when: on_success
-  
+
 checkmarx:manual:
   stage: scan
   image:
@@ -119,7 +121,7 @@ sonarqube.manual:
     SONAR_ANALYSIS_MODE: publish
   except:
     variables:
-    - $CI_COMMIT_MESSAGE =~ /^WIP.*/
+      - $CI_COMMIT_MESSAGE =~ /^WIP.*/
   before_script: []
   script:
     - gitlab-sonar-scanner
@@ -132,3 +134,69 @@ sonarqube:
     - /^release\/.*$/
     - /^hotfix\/.*$/
   when: on_success
+
+package-audit:
+  extends: dependencies
+  stage: cs-security
+  allow_failure: true
+  script:
+    - npm audit ---production --audit-level=high
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+    policy: pull
+  only:
+    - merge_requests
+    - /^release\-.*/
+    - master
+
+types-check: #tsconfig
+  extends: dependencies
+  stage: cs-quality
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+    policy: pull
+  script:
+    - npm run quality:types
+  only:
+    - merge_requests
+    - /^release\-.*/
+    - master
+
+lint-check: #Eslint
+  extends: dependencies
+  stage: cs-quality
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+    policy: pull
+  script:
+    - npm run quality:lint
+  only:
+    - merge_requests
+    - /^release\-.*/
+    - master
+
+unit-test-coverage:
+  extends: dependencies
+  stage: cs-quality
+  script:
+    - npm run quality:unit-coverage
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+    policy: pull
+  artifacts:
+    when: always
+    paths:
+      - coverage
+    expire_in: 7 days
+  only:
+    - merge_requests
+    - /^release\-.*/
+    - master
