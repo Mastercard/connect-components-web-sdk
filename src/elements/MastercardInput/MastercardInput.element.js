@@ -202,4 +202,4 @@ function mastercardInput_injector($inject) {
   }
 }
 
-export default mastercardInput_injector;
+export { mastercardInput_injector };

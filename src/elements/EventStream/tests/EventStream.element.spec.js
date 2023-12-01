@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import injector from '../EventStream.element';
+import { eventStream_injector as injector } from '../EventStream.element';
 import { randomUUID as uuid, randomInt } from 'crypto';
 
 describe('elements/EventStream/EventStream.service', () => {

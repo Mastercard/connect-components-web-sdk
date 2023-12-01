@@ -106,6 +106,10 @@ checkmarx:manual:
       # --logging.level.org.apache.http.wire=TRACE
   cache: {}
   dependencies: []
+  only:
+    - merge_requests
+    - /^release\-.*/
+    - master
 
 checkmarx:
   extends: checkmarx:manual
@@ -125,6 +129,10 @@ sonarqube.manual:
   before_script: []
   script:
     - gitlab-sonar-scanner
+  only:
+    - merge_requests
+    - /^release\-.*/
+    - master
 
 sonarqube:
   extends: sonarqube.manual

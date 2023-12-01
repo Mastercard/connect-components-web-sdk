@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import injector from '../MastercardInput.element';
+import { mastercardInput_injector as injector } from '../MastercardInput.element';
 import { sleep, MastercardEventEmitter } from '../../../core';
 
 describe('elements/MastercardInput/MastercardInput.element', () => {

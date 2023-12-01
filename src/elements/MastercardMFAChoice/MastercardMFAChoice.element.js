@@ -290,4 +290,4 @@ function mastercardMfaChoice_injector($inject) {
   }
 }
 
-export default mastercardMfaChoice_injector;
+export { mastercardMfaChoice_injector };

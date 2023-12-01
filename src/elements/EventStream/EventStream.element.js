@@ -110,4 +110,4 @@ function eventStream_injector($inject) {
   }
 }
 
-export default eventStream_injector;
+export { eventStream_injector };

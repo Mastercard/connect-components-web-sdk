@@ -1,4 +1,4 @@
-import eventStreamInjector from './EventStream.element';
+import { eventStream_injector } from './EventStream.element';
 import appConfig from '../../config/app';
 
 const $inject = {
@@ -8,4 +8,4 @@ const $inject = {
   logger: console
 };
 
-export default eventStreamInjector($inject);
+export default eventStream_injector($inject);

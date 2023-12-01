@@ -80,4 +80,4 @@ function mastercardForm_injector($inject) {
   }
 }
 
-export default mastercardForm_injector;
+export { mastercardForm_injector };

@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import injector from '../MastercardForm.element';
+import { mastercardForm_injector as injector } from '../MastercardForm.element';
 import { randomUUID } from 'crypto';
 
 describe('elements/MastercardForm/MastercardForm.service', () => {
