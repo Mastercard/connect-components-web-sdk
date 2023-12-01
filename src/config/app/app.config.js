@@ -13,4 +13,4 @@ function appConfig_injector($inject) {
   };
 }
 
-export default appConfig_injector;
+export { appConfig_injector };

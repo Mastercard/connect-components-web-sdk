@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import injector from '../app.config';
+import { appConfig_injector as injector } from '../app.config';
 
 describe('config/app.config', () => {
   let $inject;
