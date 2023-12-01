@@ -14,6 +14,10 @@ function mastercardEventEmitter_injector() {
       if (!this._callbacks.has(eventName)) {
         this._callbacks.set(eventName, new WeakMap());
       }
+      if (this._callbacks.get(eventName).has(callback)) {
+        // Don't double register!
+        return;
+      }
       // This is so we can look up the actual event handler when calling .off
       this._callbacks.get(eventName).set(callback, proxiedEventHandler);
       this._emitter.addEventListener(eventName, proxiedEventHandler);
