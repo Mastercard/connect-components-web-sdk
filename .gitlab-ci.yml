@@ -208,3 +208,4 @@ unit-test-coverage:
     - merge_requests
     - /^release\-.*/
     - master
+    - develop
