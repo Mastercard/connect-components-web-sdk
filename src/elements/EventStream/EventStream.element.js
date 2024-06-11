@@ -1,17 +1,18 @@
 /**
- * @param {import('./types').ElementImports} $inject 
+ * @param {import('./types').ElementImports} $inject
  */
 function eventStream_injector($inject) {
-  const { appConfig, HTMLElement, logger } = $inject;
+  const { appConfig, HTMLElement, logger, document, window } = $inject;
 
   return class MastercardEventStream extends HTMLElement {
     /**
      * @constructor
      * @type {import('./types').ElementExports['constructor']}
      */
-    constructor () {
+    constructor() {
       super();
       this.eventStreamId = null;
+      this.formId = null;
       this.events = new EventTarget();
     }
     // - Static methods
@@ -21,7 +22,7 @@ function eventStream_injector($inject) {
      */
     static get observedAttributes() {
       // @ts-ignore
-      return ['event-stream-id'];
+      return ['event-stream-id', 'formId'];
     }
 
     // - Lifecycle Events
@@ -32,6 +33,14 @@ function eventStream_injector($inject) {
       const $elem = this;
       if (!this.eventStreamId) {
         this.eventStreamId = $elem.getAttribute('event-stream-id');
+      }
+      if (!this.formId) {
+        try {
+          this.formId = $elem.closest('mastercard-form').getAttribute('id');
+        } catch (err) {
+          logger.error(`Could not set form id: ${err}`);
+          return;
+        }
       }
 
       this.iframe = document.createElement('iframe');
@@ -63,7 +72,7 @@ function eventStream_injector($inject) {
      * @type {import('./types').ElementExports['_bindFrameSource']}
      */
     _bindFrameSource() {
-      const frameSource = `${appConfig.sdkBase}/frames/parent/forms/event-stream.html?event-stream-id=${this.eventStreamId}`;
+      const frameSource = `${appConfig.sdkBase}/frames/parent/forms/event-stream.html?event-stream-id=${this.eventStreamId}&form-id=${this.formId}`;
       // @ts-ignore
       this.iframe.setAttribute('src', frameSource);
     }
@@ -73,7 +82,8 @@ function eventStream_injector($inject) {
      * @type {import('./types').ElementExports['_registerEventListener']}
      */
     _registerEventListener() {
-      window.addEventListener('message', event => {
+      // @ts-ignore
+      window.addEventListener('message', (event) => {
         if (event.origin !== appConfig.frameOrigin) {
           logger.warn(`Skipping message from ${event.origin}`);
           return;
@@ -104,10 +114,11 @@ function eventStream_injector($inject) {
      * @type {import('./types').ElementExports['_isValidEventStreamId']}
      */
     _isValidEventStreamId(id) {
-      const isValid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+      const isValid =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
       return isValid.test(id);
     }
-  }
+  };
 }
 
 export { eventStream_injector };

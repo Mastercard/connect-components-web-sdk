@@ -8,8 +8,8 @@ describe('elements/MastercardForm/MastercardForm.service', () => {
 
   let $elem, $inject, instance;
   class MockElement {
-    constructor () {
-      this.style = {}
+    constructor() {
+      this.style = {};
     }
   }
   MockElement.prototype.getAttribute = sandbox.fake.returns(true);
@@ -19,34 +19,36 @@ describe('elements/MastercardForm/MastercardForm.service', () => {
   MockElement.prototype.appendChild = sandbox.fake.returns(true);
 
   class MockObserver {
-    constructor (callback) {
+    constructor(callback) {
       this.cb = callback;
     }
   }
   MockObserver.prototype.observe = sandbox.spy();
   // Allows us to fire this off for testing
-  MockObserver.prototype._trigger = function () { this.cb() }
+  MockObserver.prototype._trigger = function () {
+    this.cb();
+  };
 
   beforeEach(() => {
     $inject = {
       appConfig: {
-        sdkBase: 'mock'
+        sdkBase: 'mock',
       },
       crypto: {
-        randomUUID
+        randomUUID,
       },
-      HTMLElement: MockElement
+      HTMLElement: MockElement,
+      logger: {
+        warn: sandbox.spy(),
+      },
+      document: {
+        createElement: sandbox.spy(function () {
+          return new MockElement();
+        }),
+      },
+      MutationObserver: MockObserver,
     };
 
-    global.document = {
-      createElement: sandbox.spy(function () {
-        return new MockElement();
-      })
-    };
-    global.window = {
-      addEventListener: sandbox.spy()
-    };
-    global.MutationObserver = MockObserver;
     $elem = injector($inject);
     instance = new $elem();
   });
@@ -65,8 +67,15 @@ describe('elements/MastercardForm/MastercardForm.service', () => {
       instance.querySelector = sandbox.fake.returns(null);
       instance.getAttribute = sandbox.fake.returns('mock-stream-id');
       instance.connectedCallback();
-      expect(global.document.createElement.calledWith('mastercard-event-stream')).to.be.true;
-      expect(instance.eventStream.setAttribute.calledWith('event-stream-id', 'mock-stream-id')).to.be.true;
+      expect(
+        $inject.document.createElement.calledWith('mastercard-event-stream')
+      ).to.be.true;
+      expect(
+        instance.eventStream.setAttribute.calledWith(
+          'event-stream-id',
+          'mock-stream-id'
+        )
+      ).to.be.true;
     });
     it('should not create an event stream if there is no id', () => {
       instance.querySelector = sandbox.fake.returns(null);
@@ -83,17 +92,25 @@ describe('elements/MastercardForm/MastercardForm.service', () => {
       it('should set the form id for all child inputs that are not already set', () => {
         instance.getAttribute = sandbox.fake.returns('this-form-id');
         const elementSetAttribute = sandbox.spy();
-        const mockInputs = [{
-          getAttribute: function () { return 'does not match' },
-          setAttribute: elementSetAttribute
-        }, {
-          getAttribute: function () { return 'this-form-id' },
-          setAttribute: elementSetAttribute
-        }];
+        const mockInputs = [
+          {
+            getAttribute: function () {
+              return 'does not match';
+            },
+            setAttribute: elementSetAttribute,
+          },
+          {
+            getAttribute: function () {
+              return 'this-form-id';
+            },
+            setAttribute: elementSetAttribute,
+          },
+        ];
         instance.querySelectorAll = sandbox.fake.returns(mockInputs);
         instance.connectedCallback();
         instance.observer._trigger();
-        expect(instance.querySelectorAll.calledWith('mastercard-input')).to.be.true;
+        expect(instance.querySelectorAll.calledWith('mastercard-input')).to.be
+          .true;
         expect(elementSetAttribute.callCount).to.eq(4);
       });
     });
@@ -102,10 +119,10 @@ describe('elements/MastercardForm/MastercardForm.service', () => {
     let mockEvent;
     beforeEach(() => {
       mockEvent = {
-        preventDefault: sandbox.spy()
-      }
+        preventDefault: sandbox.spy(),
+      };
       instance.onSubmit(mockEvent);
-    })
+    });
     it('should prevent the default behavior', () => {
       instance.onSubmit(mockEvent);
       expect(mockEvent.preventDefault.called).to.be.true;
@@ -121,10 +138,10 @@ describe('elements/MastercardForm/MastercardForm.service', () => {
     beforeEach(() => {
       mockIframe = {
         contentWindow: {
-          postMessage: sandbox.spy()
-        }
+          postMessage: sandbox.spy(),
+        },
       };
-    })
+    });
     it('should not do anything if there is no event stream', () => {
       instance.eventStream = null;
       instance.submit();

@@ -1,12 +1,13 @@
 /** @param {import('./types').ElementImports} $inject */
 function mastercardForm_injector($inject) {
-  const { appConfig, HTMLElement, crypto } = $inject;
+  const { appConfig, HTMLElement, crypto, logger, document, MutationObserver } =
+    $inject;
 
   return class MastercardForm extends HTMLElement {
     /**
      * @type {import('./types').ElementExports['constructor']}
      */
-    constructor () {
+    constructor() {
       super();
       this.eventStream = null;
       this.events = null;
@@ -31,27 +32,35 @@ function mastercardForm_injector($inject) {
       }
       // Proxy this to make it easier to access
       this.observer = new MutationObserver(() => {
-        Array.from(this.querySelectorAll('mastercard-input')).filter(elem => {
-          return elem.getAttribute('form-id') !== this.id;
-        }).forEach(elem => {
-          elem.setAttribute('form-id', this.id);
-        });
-        Array.from(this.querySelectorAll('mastercard-mfa-choice')).filter(elem => {
-          return elem.getAttribute('form-id') !== this.id;
-        }).forEach(elem => {
-          elem.setAttribute('form-id', this.id);
-        });
+        Array.from(this.querySelectorAll('mastercard-input'))
+          .filter((elem) => {
+            return elem.getAttribute('form-id') !== this.id;
+          })
+          .forEach((elem) => {
+            elem.setAttribute('form-id', this.id);
+          });
+        Array.from(this.querySelectorAll('mastercard-mfa-choice'))
+          .filter((elem) => {
+            return elem.getAttribute('form-id') !== this.id;
+          })
+          .forEach((elem) => {
+            elem.setAttribute('form-id', this.id);
+          });
       });
 
       // @ts-ignore
-      this.observer.observe(this, { subtree: true, childList: true, characterData: false });
+      this.observer.observe(this, {
+        subtree: true,
+        childList: true,
+        characterData: false,
+      });
     }
 
     // - Custom methods
     /**
      * This method is used to intercept native onSubmit calls and forward them to our own custom
      * submit function
-     * @type {import('./types').ElementExports['onSubmit']} 
+     * @type {import('./types').ElementExports['onSubmit']}
      */
     onSubmit(event) {
       event.preventDefault();
@@ -71,13 +80,14 @@ function mastercardForm_injector($inject) {
       };
       if (this.eventStream) {
         // @ts-ignore
-        this.eventStream.querySelector('iframe').contentWindow.postMessage(message, targetOrigin);
+        this.eventStream
+          .querySelector('iframe')
+          .contentWindow.postMessage(message, targetOrigin);
       } else {
-        console.warn(`No event stream registered!`);
+        logger.warn(`No event stream registered!`);
       }
-
     }
-  }
+  };
 }
 
 export { mastercardForm_injector };

@@ -2,6 +2,8 @@
 export type ElementImports = {
   appConfig: import('../../config/types').AppConfig,
   HTMLElement: any,
+  document: any,
+  window: any,
   logger: {
     log: Function,
     warn: Function,
@@ -9,7 +11,6 @@ export type ElementImports = {
   }
 }
 export type ElementExports = {
-  constructor(): any,
   observedAttributes(): Array<string>,
   connectedCallback(): void,
   attributeChangedCallback(name: string, oldValue: string, newValue: string): void,

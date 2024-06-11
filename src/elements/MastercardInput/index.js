@@ -1,15 +1,15 @@
 import appConfig from '../../config/app';
+import BaseInputElement from '../BaseInputElement/index';
 import { mastercardInput_injector } from './MastercardInput.element';
-import { sleep, MastercardEventEmitter } from '../../core';
+import { sleep } from '../../core';
 
 const $inject = {
   appConfig,
-  HTMLElement,
+  BaseInputElement,
   sleep,
   window,
   document,
   logger: console,
-  MastercardEventEmitter
 };
 
 // @ts-ignore

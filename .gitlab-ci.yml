@@ -2,7 +2,7 @@ include:
   - project: devops/central-ci
     file: jobs/by-stage/scan/black-duck-scan.yml
 
-image: node:18
+image: node:20
 
 stages:
   - install
@@ -20,9 +20,6 @@ dependencies:
       - node_modules/
   script:
     - npm ci
-  only:
-    changes:
-      - package-lock.json
 
 build:
   stage: build

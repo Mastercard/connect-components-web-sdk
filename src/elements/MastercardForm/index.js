@@ -5,6 +5,9 @@ const $inject = {
   appConfig,
   crypto,
   HTMLElement,
+  document,
+  MutationObserver,
+  logger: console,
 };
 
 export default mastercardForm_injector($inject);

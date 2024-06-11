@@ -3,12 +3,17 @@ export type ElementImports = {
   crypto: {
     randomUUID(): string,
   },
-  // From global scope
   HTMLElement: any,
+  document: any,
+  MutationObserver: any,
+  logger: {
+    log: Function,
+    warn: Function,
+    error: Function,
+  }
 }
 
 export type ElementExports = {
-  constructor(): any,
   connectedCallback(): void,
   onSubmit(event: any): void,
   submit(): void
