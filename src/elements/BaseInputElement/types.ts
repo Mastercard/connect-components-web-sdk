@@ -1,11 +1,8 @@
 export type ElementImports = {
-  appConfig: import('../../config/types').AppConfig,
-  BaseInputElement: any,
-  sleep: Function,
+  HTMLElement: any,
+  MastercardEventEmitter: import('../../core/MastercardEventEmitter/types').MastercardEventEmitter,
   document: any,
   window: any,
-  logger: any,
-  MastercardEventEmitter: import('../../core/MastercardEventEmitter/types').MastercardEventEmitter,
 }
 
 export type StyleObject = {
@@ -32,14 +29,9 @@ export type StyleObject = {
 
 export type ElementExports = {
   observedAttributes: Array<string>,
-  render(): void,
-  connectedCallback(): void,
-  generateAutoStyleObject(): StyleObject,
+  addEventListener(eventName: string, callback: Function): void,
+  removeEventListener(eventName: string, callback: Function): void,
   attributeChangedCallback(name: string): void,
-  generateInnerStyleObject(newStyle: StyleObject): StyleObject,
-  generateInputStyleObject(): any,
-  generateRadioStyleObject(): any,
-  generateImageStyleObject(): any,
-  generateLabelStyleObject(): any,
-  registerInputEvents(): void,
+  generateOuterStyle(generatedStyle: any, target: any): void,
+  generateBaseStyle(mockElement: any): StyleObject,
 }

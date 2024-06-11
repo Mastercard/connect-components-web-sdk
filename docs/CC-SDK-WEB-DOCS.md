@@ -234,7 +234,7 @@ The response from the Connect Components API to [create a login form](https://ap
   ]
 }
 ```
-This response is needs to be provided to the Connect Components SDK to render the login form elements. Each item in the `elements` property represents a single `<mastercard-input>` for a customer to interact with. 
+This response needs to be provided to the Connect Components SDK to render the login form elements. Each item in the `elements` property represents a single `<mastercard-input>` for a customer to interact with. 
 
 **Note: Input Element Quantities Vary**
 It is important to note that the names and quantities of form elements in the create login form response depends entirely on the what is required by the selected financial institution. For most institutions, two elements should be expected (one to capture a username and one to capture a password), but this is not always the case. **Take care** to account for variations number of element and different labels for each element.

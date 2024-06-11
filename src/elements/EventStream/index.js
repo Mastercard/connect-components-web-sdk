@@ -5,7 +5,9 @@ const $inject = {
   appConfig,
   // From global browser scope
   HTMLElement,
-  logger: console
+  document,
+  window,
+  logger: console,
 };
 
 export default eventStream_injector($inject);

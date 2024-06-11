@@ -8,34 +8,36 @@ describe('elements/EventStream/EventStream.service', () => {
 
   let $elem, $inject, instance;
   class MockElement {
-    constructor () {
-      this.style = {}
+    constructor() {
+      this.style = {};
     }
   }
-  MockElement.prototype.getAttribute = sandbox.fake.returns(true);
-  MockElement.prototype.setAttribute = sandbox.spy();
-  MockElement.prototype.append = sandbox.fake.returns(true);
 
   beforeEach(() => {
+    MockElement.prototype.getAttribute = sandbox.fake.returns(true);
+    MockElement.prototype.closest = sandbox.fake.returns(new MockElement());
+    MockElement.prototype.setAttribute = sandbox.spy();
+    MockElement.prototype.append = sandbox.fake.returns(true);
     $inject = {
       appConfig: {
         sdkBase: 'mock',
-        frameOrigin: 'mock'
+        frameOrigin: 'mock',
       },
       HTMLElement: MockElement,
+      document: {
+        createElement: sandbox.spy(function () {
+          return new MockElement();
+        }),
+      },
+      window: {
+        addEventListener: sandbox.spy(),
+      },
       logger: {
         warn: sandbox.spy(),
-      }
+        error: sandbox.spy(),
+      },
     };
 
-    global.document = {
-      createElement: sandbox.spy(function () {
-        return new MockElement();
-      })
-    };
-    global.window = {
-      addEventListener: sandbox.spy()
-    };
     $elem = injector($inject);
     instance = new $elem();
   });
@@ -45,24 +47,45 @@ describe('elements/EventStream/EventStream.service', () => {
 
   describe('observedAttributes static method', () => {
     it('returns a list of observable attributes', () => {
-      expect($elem.observedAttributes).to.be.an('array').and
-        .to.include('event-stream-id');
+      expect($elem.observedAttributes)
+        .to.be.an('array')
+        .and.to.include('event-stream-id');
     });
   });
 
   describe('connectedCallback method', () => {
     it('should get the event stream id if one was not already assigned', () => {
       instance.connectedCallback();
-      expect(instance.getAttribute.calledWithExactly('event-stream-id')).to.be.true;
+      expect(instance.getAttribute.calledWithExactly('event-stream-id')).to.be
+        .true;
+    });
+    it('should log out an error and return if there is no mastercard-form', () => {
+      instance.formId = null;
+      MockElement.prototype.closest = sandbox.fake.returns(null);
+      instance.connectedCallback();
+      expect($inject.logger.error.called).to.be.true;
+      expect($inject.document.createElement.called).to.be.false;
+    });
+    it('should get the form id if one was not already assigned', () => {
+      instance.formId = null;
+      instance.connectedCallback();
+      expect(instance.getAttribute.calledWithExactly('id')).to.be.true;
+      expect(instance.formId).to.not.be.null;
+    });
+    it('should not read attributes if form id is already assigned', () => {
+      instance.formId = '12456';
+      instance.connectedCallback();
+      expect(instance.getAttribute.calledWith('id')).to.be.false;
     });
     it('should not read attributes if event stream id is already assigned', () => {
-      instance.eventStreamId = '12456'
+      instance.eventStreamId = '12456';
       instance.connectedCallback();
-      expect(instance.getAttribute.called).to.be.false;
+      expect(instance.getAttribute.calledWith('event-stream-id')).to.be.false;
     });
     it('should create an iframe', () => {
       instance.connectedCallback();
-      expect(global.document.createElement.calledWithExactly('iframe')).to.be.true;
+      expect($inject.document.createElement.calledWithExactly('iframe')).to.be
+        .true;
       expect(instance.append.called).to.be.true;
     });
     it('should hide itself', () => {
@@ -70,7 +93,7 @@ describe('elements/EventStream/EventStream.service', () => {
       expect(instance.style.display).to.eq('none');
     });
     it('should bind event sources if the event stream id is set', () => {
-      instance.eventStreamId = '12456'
+      instance.eventStreamId = '12456';
       instance._bindFrameSource = sandbox.spy();
       instance._registerEventListener = sandbox.spy();
       instance.connectedCallback();
@@ -130,18 +153,18 @@ describe('elements/EventStream/EventStream.service', () => {
     });
     it('should register an event listener on the window object', () => {
       instance._registerEventListener();
-      expect(global.window.addEventListener.calledWith('message')).to.be.true;
+      expect($inject.window.addEventListener.calledWith('message')).to.be.true;
     });
     describe('window message callback', () => {
       let cb;
       beforeEach(() => {
         instance._registerEventListener();
         instance.events.dispatchEvent = sandbox.spy();
-        cb = global.window.addEventListener.getCall(0).args[1];
+        cb = $inject.window.addEventListener.getCall(0).args[1];
       });
       it('should skip events not intended for us', () => {
         const mockEvent = {
-          origin: 'not-mock'
+          origin: 'not-mock',
         };
         cb(mockEvent);
         expect(instance.events.dispatchEvent.called).to.be.false;
@@ -153,7 +176,7 @@ describe('elements/EventStream/EventStream.service', () => {
           data: {
             id: '12345',
             eventType: 'mock-event',
-          }
+          },
         };
         cb(mockEvent);
         expect(instance.events.dispatchEvent.called).to.be.true;
@@ -167,7 +190,8 @@ describe('elements/EventStream/EventStream.service', () => {
       });
       it('should return false on invalid UUIDs', () => {
         for (let i = 0; i < 100; i++) {
-          expect(instance._isValidEventStreamId(`${randomInt(10000)}`)).to.be.false;
+          expect(instance._isValidEventStreamId(`${randomInt(10000)}`)).to.be
+            .false;
         }
       });
     });
