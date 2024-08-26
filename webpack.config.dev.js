@@ -1,14 +1,8 @@
-const path = require('path');
-const Dotenv = require('dotenv-webpack');
+const { merge } = require('webpack-merge');
+const common = require('./webpack.config.common.js');
 
-module.exports = {
-  entry: './src/index.js',
-  plugins: [
-    new Dotenv()
-  ],
+module.exports = merge(common, {
   output: {
     filename: 'dev.sdk.js',
-    path: path.resolve(__dirname, 'dist'),
-    clean: true,
   },
-};
+});

@@ -75,14 +75,18 @@ function mastercardForm_injector($inject) {
       const requestId = crypto.randomUUID();
       const targetOrigin = appConfig.sdkBase;
       const message = {
+        formId: this.getAttribute('id'),
         eventType: 'submitRequest',
         requestId,
       };
       if (this.eventStream) {
         // @ts-ignore
-        this.eventStream
-          .querySelector('iframe')
-          .contentWindow.postMessage(message, targetOrigin);
+        message.eventStreamId =
+          this.eventStream.getAttribute('event-stream-id');
+          // @ts-ignore
+          this.eventStream
+            .querySelector('iframe')
+            .contentWindow.postMessage(message, targetOrigin);
       } else {
         logger.warn(`No event stream registered!`);
       }

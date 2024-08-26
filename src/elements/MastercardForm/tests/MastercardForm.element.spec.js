@@ -150,6 +150,7 @@ describe('elements/MastercardForm/MastercardForm.service', () => {
     it('should fire off event if there is an event stream', () => {
       instance.eventStream = {
         querySelector: sandbox.fake.returns(mockIframe),
+        getAttribute: sandbox.fake.returns('123456'),
       };
       instance.submit();
       expect(mockIframe.contentWindow.postMessage.called).to.be.true;
