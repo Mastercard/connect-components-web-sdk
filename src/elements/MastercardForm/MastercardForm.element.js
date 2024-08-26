@@ -75,6 +75,8 @@ function mastercardForm_injector($inject) {
       const requestId = crypto.randomUUID();
       const targetOrigin = appConfig.sdkBase;
       const message = {
+        eventStreamId: this.eventStream.getAttribute('event-stream-id'),
+        formId: this.getAttribute('id'),
         eventType: 'submitRequest',
         requestId,
       };
