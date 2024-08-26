@@ -1,14 +1,19 @@
-const path = require('path');
-const Dotenv = require('dotenv-webpack');
+const { merge } = require('webpack-merge');
+const common = require('./webpack.config.common.js');
+const TerserPlugin = require('terser-webpack-plugin');
 
-module.exports = {
-  entry: './src/index.js',
-  plugins: [
-    new Dotenv()
-  ],
+module.exports = merge(common, {
+  mode: 'production',
+  devtool: 'source-map',
   output: {
     filename: 'sdk.js',
-    path: path.resolve(__dirname, 'dist'),
-    clean: true,
   },
-};
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        minify: TerserPlugin.uglifyJsMinify,
+      }),
+    ],
+  },
+});

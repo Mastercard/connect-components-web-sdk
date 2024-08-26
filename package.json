@@ -7,8 +7,11 @@
     "init": "cp env.tmpl .env",
     "build": "npm run build:dev",
     "dev": "webpack --config webpack.config.dev.js --mode development --watch",
-    "build:dev": "webpack --config webpack.config.dev.js --mode development",
-    "build:prod": "webpack --config webpack.config.prod.js --mode production",
+    "build:debug": "webpack --config webpack.config.dev.js --mode development",
+    "build:local": "cat variables/local > .env && npm run build:debug",
+    "build:dev": "cat variables/dev-us > .env && npm run build:debug",
+    "build:stage": "cat variables/stage-us > .env && npm run build:debug",
+    "build:prod": "cat variables/prod-us > .env && webpack --config webpack.config.prod.js --mode production",
     "lint": "eslint src/",
     "test": "npm run test:unit",
     "test:unit": "mocha 'src/**/*.spec.js'",
@@ -38,9 +41,12 @@
     "nyc": "^15.1.0",
     "regenerator-runtime": "^0.13.11",
     "sinon": "^15.2.0",
+    "terser-webpack-plugin": "^5.3.10",
     "typescript": "^5.2.2",
+    "uglify-js": "^3.19.2",
     "webpack": "^5.88.2",
-    "webpack-cli": "^5.1.4"
+    "webpack-cli": "^5.1.4",
+    "webpack-merge": "^6.0.1"
   },
   "nyc": {
     "all": true,
