@@ -81,8 +81,8 @@ function mastercardForm_injector($inject) {
       };
       if (this.eventStream) {
         // @ts-ignore
-        (message.eventStreamId =
-          this.eventStream.getAttribute('event-stream-id')),
+        message.eventStreamId =
+          this.eventStream.getAttribute('event-stream-id');
           // @ts-ignore
           this.eventStream
             .querySelector('iframe')
