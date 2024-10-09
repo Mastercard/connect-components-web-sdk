@@ -31,7 +31,7 @@ export type ElementExports = {
   observedAttributes: Array<string>,
   addEventListener(eventName: string, callback: Function): void,
   removeEventListener(eventName: string, callback: Function): void,
-  attributeChangedCallback(name: string): void,
+  attributeChangedCallback(name: string, oldValue: string, newValue: string): void,
   generateOuterStyle(generatedStyle: any, target: any): void,
   generateBaseStyle(mockElement: any): StyleObject,
 }
