@@ -41,10 +41,13 @@ function eventStream_injector($inject) {
           this.formId = $elem.closest('mastercard-form').getAttribute('id');
         } catch (err) {
           logger.error(`Could not set form id: ${err}`);
-          return;
         }
       }
 
+      if (!this.formId) {
+        logger.error('Could not locate form-id');
+        return;
+      }
       this.iframe = document.createElement('iframe');
       $elem.append(this.iframe);
       $elem.style.display = 'none';
