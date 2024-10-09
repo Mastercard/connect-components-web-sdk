@@ -20,7 +20,6 @@ function mastercardInput_injector($inject) {
     static get observedAttributes() {
       return ['id', 'form-id', 'class'];
     }
-
     /**
      * The reason for the queue microtask is to prevent the connected callback and the attribute change
      * triggering at the same time and firing off http calls that will ultimately get cancelled. This way
@@ -38,7 +37,7 @@ function mastercardInput_injector($inject) {
       this.innerFrame.contentWindow.postMessage(
         {
           eventType: 'updateStyle',
-          payload: {
+          data: {
             input: innerStyleObject,
           },
         },
@@ -66,13 +65,13 @@ function mastercardInput_injector($inject) {
       window.addEventListener(
         'message',
         (
-          /** @type {{ origin: any; data: { messageType: any; elementId: any; }; }} */ evt
+          /** @type {{ origin: any; data: { eventType: any; elementId: any; }; }} */ evt
         ) => {
           if (evt.origin !== appConfig.frameOrigin) {
             logger.warn('Ignoring message from unknown origin');
             return;
           }
-          const eventType = evt.data.messageType;
+          const eventType = evt.data.eventType;
           switch (eventType) {
             case 'inputReady': {
               this.frameReady = true;
