@@ -61,6 +61,7 @@ describe('elements/EventStream/EventStream.service', () => {
     });
     it('should log out an error and return if there is no mastercard-form', () => {
       instance.formId = null;
+      MockElement.prototype.getAttribute = sandbox.fake.returns(null);
       MockElement.prototype.closest = sandbox.fake.returns(null);
       instance.connectedCallback();
       expect($inject.logger.error.called).to.be.true;
@@ -69,7 +70,7 @@ describe('elements/EventStream/EventStream.service', () => {
     it('should get the form id if one was not already assigned', () => {
       instance.formId = null;
       instance.connectedCallback();
-      expect(instance.getAttribute.calledWithExactly('id')).to.be.true;
+      expect(instance.getAttribute.calledWithExactly('form-id')).to.be.true;
       expect(instance.formId).to.not.be.null;
     });
     it('should not read attributes if form id is already assigned', () => {

@@ -165,7 +165,7 @@ describe('elements/MastercardMFAChoice/MastercardMFAChoice.element', () => {
       const mockEvent = {
         origin: 'something unexpected',
         data: {
-          messageType: 'inputReady',
+          eventType: 'inputReady',
         },
       };
       eventHandler(mockEvent);
@@ -177,7 +177,7 @@ describe('elements/MastercardMFAChoice/MastercardMFAChoice.element', () => {
         instance.render = sandbox.spy();
         const mockEvent = {
           origin: 'mock.local',
-          data: { messageType: 'inputReady' },
+          data: { eventType: 'inputReady' },
         };
         eventHandler(mockEvent);
         const dispatchedEvent = instance.emitter.emit.getCall(0).args[0];
@@ -189,7 +189,7 @@ describe('elements/MastercardMFAChoice/MastercardMFAChoice.element', () => {
         instance.emitter.emit = sandbox.spy();
         const mockEvent = {
           origin: 'mock.local',
-          data: { messageType: 'inputBlur' },
+          data: { eventType: 'inputBlur' },
         };
         eventHandler(mockEvent);
         const dispatchedEvent = instance.emitter.emit.getCall(0).args[0];
@@ -199,7 +199,7 @@ describe('elements/MastercardMFAChoice/MastercardMFAChoice.element', () => {
         instance.emitter.emit = sandbox.spy();
         const mockEvent = {
           origin: 'mock.local',
-          data: { messageType: 'inputBlur', elementId: 'wrong' },
+          data: { eventType: 'inputBlur', elementId: 'wrong' },
         };
         eventHandler(mockEvent);
         expect(instance.emitter.emit.called).to.be.false;
@@ -210,7 +210,7 @@ describe('elements/MastercardMFAChoice/MastercardMFAChoice.element', () => {
         instance.emitter.emit = sandbox.spy();
         const mockEvent = {
           origin: 'mock.local',
-          data: { messageType: 'inputFocus' },
+          data: { eventType: 'inputFocus' },
         };
         eventHandler(mockEvent);
         const dispatchedEvent = instance.emitter.emit.getCall(0).args[0];
@@ -220,7 +220,7 @@ describe('elements/MastercardMFAChoice/MastercardMFAChoice.element', () => {
         instance.emitter.emit = sandbox.spy();
         const mockEvent = {
           origin: 'mock.local',
-          data: { messageType: 'inputFocus', elementId: 'wrong' },
+          data: { eventType: 'inputFocus', elementId: 'wrong' },
         };
         eventHandler(mockEvent);
         expect(instance.emitter.emit.called).to.be.false;

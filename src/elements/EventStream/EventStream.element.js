@@ -22,7 +22,7 @@ function eventStream_injector($inject) {
      */
     static get observedAttributes() {
       // @ts-ignore
-      return ['event-stream-id', 'formId'];
+      return ['event-stream-id', 'form-id'];
     }
 
     // - Lifecycle Events
@@ -34,15 +34,20 @@ function eventStream_injector($inject) {
       if (!this.eventStreamId) {
         this.eventStreamId = $elem.getAttribute('event-stream-id');
       }
-      if (!this.formId) {
+      if (!this.formId && $elem.getAttribute('form-id')) {
+        this.formId = $elem.getAttribute('form-id');
+      } else if (!this.formId) {
         try {
           this.formId = $elem.closest('mastercard-form').getAttribute('id');
         } catch (err) {
           logger.error(`Could not set form id: ${err}`);
-          return;
         }
       }
 
+      if (!this.formId) {
+        logger.error('Could not locate form-id');
+        return;
+      }
       this.iframe = document.createElement('iframe');
       $elem.append(this.iframe);
       $elem.style.display = 'none';
@@ -96,15 +101,19 @@ function eventStream_injector($inject) {
         */
         const newEvent = new Event(event.data.eventType);
         // @ts-ignore
-        newEvent.data = event.data;
+        newEvent.data = (event.data || {}).data;
         // @ts-ignore
-        newEvent.id = event.data.id;
-        // @ts-ignore
-        delete newEvent.data.isPublic;
-        // @ts-ignore
-        delete newEvent.data.eventType;
-        // @ts-ignore
-        delete newEvent.data.id;
+        newEvent.id = (event.data || {}).id;
+        try {
+          // @ts-ignore
+          delete newEvent.data.isPublic;
+          // @ts-ignore
+          delete newEvent.data.eventType;
+          // @ts-ignore
+          delete newEvent.data.id;
+        } catch (err) {
+          logger.warn(err);
+        }
         this.events.dispatchEvent(newEvent);
       });
     }

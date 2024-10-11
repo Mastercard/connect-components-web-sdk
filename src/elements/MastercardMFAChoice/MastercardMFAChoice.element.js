@@ -45,7 +45,7 @@ function mastercardMfaChoice_injector($inject) {
       this.innerFrame.contentWindow.postMessage(
         {
           eventType: 'updateStyle',
-          payload: {
+          data: {
             input: innerInputStyleObject,
             radio: innerRadioStyle,
             image: innerImageStyle,
@@ -80,13 +80,13 @@ function mastercardMfaChoice_injector($inject) {
       window.addEventListener(
         'message',
         (
-          /** @type {{ origin: any; data: { messageType: any; elementId: any; }; }} */ evt
+          /** @type {{ origin: any; data: { eventType: any; elementId: any; }; }} */ evt
         ) => {
           if (evt.origin !== appConfig.frameOrigin) {
             logger.warn('Ignoring message from unknown origin');
             return;
           }
-          const eventType = evt.data.messageType;
+          const eventType = evt.data.eventType;
           switch (eventType) {
             case 'inputReady': {
               this.frameReady = true;

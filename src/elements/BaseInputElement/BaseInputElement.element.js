@@ -19,6 +19,7 @@ function baseInputElement_injector($inject) {
       this.emitter = new MastercardEventEmitter();
       this.elemId = null;
       this.formId = null;
+      this._hasChanged = false;
     }
 
     /** @type {import('./types').ElementExports['addEventListener']} */
@@ -34,13 +35,19 @@ function baseInputElement_injector($inject) {
     /**
      * @type {import('./types').ElementExports['attributeChangedCallback']}
      */
-    async attributeChangedCallback() {
-      this.elemId = this.getAttribute('id');
-      this.formId = this.getAttribute('form-id');
-      if (!this.elemId || !this.formId || !this.innerFrame) {
+    async attributeChangedCallback(name, oldValue, newValue) {
+      if (name === 'id' && oldValue !== newValue) {
+        this.elemId = this.getAttribute('id');
+        this._hasChanged = true;
+      } else if (name === 'form-id' && oldValue !== newValue) {
+        this.formId = this.getAttribute('form-id');
+        this._hasChanged = true;
+      }
+      if (!this.elemId || !this.formId) {
         return;
       }
-      if (this.isConnected && this.frameReady) {
+      if (this._hasChanged && this.isConnected && this.frameReady) {
+        this._hasChanged = false;
         this.render();
       }
     }

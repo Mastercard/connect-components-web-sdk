@@ -96,7 +96,8 @@ describe('elements/BaseInputElement/BaseInputElement.element', () => {
     });
     it('should set the element id and form id', () => {
       instance.getAttribute = sandbox.fake.returns('mock-attr');
-      instance.attributeChangedCallback('id');
+      instance.attributeChangedCallback('id', 'old-id', 'new-id');
+      instance.attributeChangedCallback('form-id', 'old-id', 'new-id');
       expect(instance.elemId).to.eq('mock-attr');
       expect(instance.formId).to.eq('mock-attr');
     });
@@ -125,7 +126,8 @@ describe('elements/BaseInputElement/BaseInputElement.element', () => {
       instance.innerFrame = {};
       instance.frameReady = true;
       instance.isConnected = true;
-      instance.attributeChangedCallback('id');
+      instance.attributeChangedCallback('id', 'old-id', 'new-id');
+      instance.attributeChangedCallback('form-id', 'old-id', 'new-id');
       expect(instance.render.called).to.be.true;
     });
   });
