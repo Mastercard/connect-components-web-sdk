@@ -11,6 +11,7 @@ stages:
   - cs-security
   - test
   - scan
+  - publish
 
 dependencies:
   stage: install
@@ -43,6 +44,22 @@ lint:
     policy: pull # https://docs.gitlab.com/ee/ci/yaml/#cachepolicy
   script:
     - npm run lint
+
+publish:
+  stage: publish
+  only:
+    - master
+  when: manual
+  script:
+    # https://www.npmjs.com/~mastercardapi
+    - echo -e "//registry.npmjs.org/:_authToken=${MASTERCARD_NPMJS_AUTOMATION_TOKEN}" > ./.npmrc
+    - npm whoami
+    - npm publish
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+    policy: pull
 
 # prettier:
 # -- Do we want this?

@@ -22,6 +22,7 @@
     "quality:lint:fix": "eslint --ext js . --fix",
     "security:package-audit": "npm audit ---production --audit-level=high"
   },
+  "files": ["/dist/sdk.js","dist/sdk.js.map"],
   "repository": {
     "type": "git",
     "url": "git@gitlab.fini.city:connect-services/cc-sdk-web.git"
