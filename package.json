@@ -1,5 +1,5 @@
 {
-  "name": "cc-sdk-web",
+  "name": "@mastercard/connect-components-web-sdk",
   "version": "1.0.0",
   "description": "The web SDK for the Connect Components project",
   "main": "src/index.js",
