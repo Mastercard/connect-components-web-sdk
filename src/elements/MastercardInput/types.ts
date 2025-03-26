@@ -31,9 +31,5 @@ export type StyleObject = {
 
 export type ElementExports = {
   observedAttributes: Array<string>,
-  render(): void,
-  connectedCallback(): void,
-  attributeChangedCallback(name: string): void,
-  generateAutoStyleObject(): StyleObject,
-  generateStyleObject(newStyle: StyleObject): StyleObject,
+  generateIframeURL(formId: string, elementId: string): string,
 }
