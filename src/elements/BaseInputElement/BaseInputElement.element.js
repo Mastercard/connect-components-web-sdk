@@ -114,7 +114,7 @@ function baseInputElement_injector($inject) {
         };
         this.innerFrame.contentWindow.postMessage(
           eventData,
-          appConfig.frameOrigin
+          appConfig.getFrameOrigin()
         );
       } catch (err) {
         logger.error('Unable to postMessage to inner frame');
@@ -137,7 +137,7 @@ function baseInputElement_injector($inject) {
         (
           /** @type {{ origin: any; data: { eventType: any; elementId: any; }; }} */ evt
         ) => {
-          if (evt.origin !== appConfig.frameOrigin) {
+          if (evt.origin !== appConfig.getFrameOrigin()) {
             logger.warn('Ignoring message from unknown origin');
             return;
           }

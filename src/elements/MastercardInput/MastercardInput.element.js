@@ -8,7 +8,7 @@ function mastercardInput_injector($inject) {
      * @type {import('./types').ElementExports['generateIframeURL']}
      */
     generateIframeURL(formId, elementId) {
-      return `${appConfig.sdkBase}/frames/parent/login-forms/${formId}/elements/${elementId}/contents.html`;
+      return `${appConfig.getSDKBase()}/frames/parent/login-forms/${formId}/elements/${elementId}/contents.html`;
     }
   };
 }

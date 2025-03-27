@@ -32,7 +32,8 @@ describe('elements/MastercardForm/MastercardForm.service', () => {
   beforeEach(() => {
     $inject = {
       appConfig: {
-        sdkBase: 'mock',
+        getSDKBase: () => 'http://mock.local',
+        getFrameOrigin: () => 'mock.local',
       },
       crypto: {
         randomUUID,

@@ -7,7 +7,7 @@ function mastercardMfaChoice_injector($inject) {
      * @type {import('./types').ElementExports['generateIframeURL']}
      */
     generateIframeURL(formId, elementId) {
-      return `${appConfig.sdkBase}/frames/parent/mfa/${formId}/elements/${elementId}/contents.html`;
+      return `${appConfig.getSDKBase()}/frames/parent/mfa/${formId}/elements/${elementId}/contents.html`;
     }
   };
 }

@@ -20,8 +20,8 @@ describe('elements/EventStream/EventStream.service', () => {
     MockElement.prototype.append = sandbox.fake.returns(true);
     $inject = {
       appConfig: {
-        sdkBase: 'mock',
-        frameOrigin: 'mock',
+        getSDKBase: () => 'http://mock.local',
+        getFrameOrigin: () => 'mock',
       },
       HTMLElement: MockElement,
       document: {

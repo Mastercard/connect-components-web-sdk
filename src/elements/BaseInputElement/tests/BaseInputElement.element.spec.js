@@ -46,8 +46,8 @@ describe('elements/BaseInputElement/BaseInputElement.element', () => {
 
     $inject = {
       appConfig: {
-        sdkBase: 'http://mock.local',
-        frameOrigin: 'mock.local',
+        getSDKBase: () => 'http://mock.local',
+        getFrameOrigin: () => 'mock.local',
       },
       HTMLElement: MockElement,
       window: {
