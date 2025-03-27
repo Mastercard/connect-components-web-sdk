@@ -31,9 +31,6 @@ const moduleFormat = {
 const commonJSFormat = {
   mode: 'production',
   devtool: 'source-map',
-  output: {
-    filename: 'sdk.mjs',
-  },
   optimization: {
     minimize: true,
     minimizer: [
