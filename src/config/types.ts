@@ -1,6 +1,7 @@
 export type AppConfig = {
-  frameOrigin: string,
-  sdkBase: string
+  setSDKBase(newBase: string): void,
+  getSDKBase(): string,
+  getFrameOrigin(): string,
 }
 
 export type ConfigImports = {

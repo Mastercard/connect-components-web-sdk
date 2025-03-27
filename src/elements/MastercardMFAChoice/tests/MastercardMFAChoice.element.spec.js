@@ -10,8 +10,8 @@ describe('elements/MastercardMFAChoice/MastercardMFAChoice.element', () => {
   beforeEach(() => {
     $inject = {
       appConfig: {
-        sdkBase: 'http://mock.local',
-        frameOrigin: 'mock.local',
+        getSDKBase: () => 'http://mock.local',
+        getFrameOrigin: () => 'mock.local',
       },
       BaseInputElement: class BaseInputElement {},
     };

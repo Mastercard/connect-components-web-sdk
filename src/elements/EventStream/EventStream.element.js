@@ -77,7 +77,9 @@ function eventStream_injector($inject) {
      * @type {import('./types').ElementExports['_bindFrameSource']}
      */
     _bindFrameSource() {
-      const frameSource = `${appConfig.sdkBase}/frames/parent/forms/event-stream.html?event-stream-id=${this.eventStreamId}&form-id=${this.formId}`;
+      const frameSource = `${appConfig.getSDKBase()}/frames/parent/forms/event-stream.html?event-stream-id=${
+        this.eventStreamId
+      }&form-id=${this.formId}`;
       // @ts-ignore
       this.iframe.setAttribute('src', frameSource);
     }
@@ -89,7 +91,7 @@ function eventStream_injector($inject) {
     _registerEventListener() {
       // @ts-ignore
       window.addEventListener('message', (event) => {
-        if (event.origin !== appConfig.frameOrigin) {
+        if (event.origin !== appConfig.getFrameOrigin()) {
           logger.warn(`Skipping message from ${event.origin}`);
           return;
         }
