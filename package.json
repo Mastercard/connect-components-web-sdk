@@ -1,8 +1,8 @@
 {
   "name": "@mastercard/connect-components-web-sdk",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "The web SDK for the Connect Components project",
-  "main": "src/index.js",
+  "main": "dist/sdk.js",
   "scripts": {
     "init": "cp env.tmpl .env",
     "build": "npm run build:dev",
@@ -22,7 +22,6 @@
     "quality:lint:fix": "eslint --ext js . --fix",
     "security:package-audit": "npm audit ---production --audit-level=high"
   },
-  "files": ["/dist/sdk.js","dist/sdk.js.map"],
   "repository": {
     "type": "git",
     "url": "git@gitlab.fini.city:connect-services/cc-sdk-web.git"
