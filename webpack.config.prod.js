@@ -4,6 +4,31 @@ const TerserPlugin = require('terser-webpack-plugin');
 const path = require('path');
 const Dotenv = require('dotenv-webpack');
 
+const webFormat = {
+  mode: 'production',
+  devtool: 'source-map',
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        minify: TerserPlugin.uglifyJsMinify,
+      }),
+    ],
+  },
+  entry: './src/index.js',
+  plugins: [new Dotenv()],
+  output: {
+    filename: 'web.js',
+    path: path.resolve(__dirname, 'dist'),
+    clean: false,
+    // libraryTarget: 'var',
+    library: {
+      name: 'ConnectComponents',
+      type: 'var',
+    },
+  },
+};
+
 const moduleFormat = {
   mode: 'production',
   devtool: 'source-map',
@@ -23,7 +48,7 @@ const moduleFormat = {
   output: {
     filename: 'sdk.mjs',
     path: path.resolve(__dirname, 'dist'),
-    clean: false,
+    clean: true,
     libraryTarget: 'module',
   },
 };
@@ -49,4 +74,4 @@ const commonJSFormat = {
   },
 };
 
-module.exports = [moduleFormat, commonJSFormat];
+module.exports = [moduleFormat, commonJSFormat, webFormat];
