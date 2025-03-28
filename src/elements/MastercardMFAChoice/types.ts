@@ -33,13 +33,5 @@ export type StyleObject = {
 export type ElementExports = {
   observedAttributes: Array<string>,
   render(): void,
-  connectedCallback(): void,
-  generateAutoStyleObject(): StyleObject,
-  attributeChangedCallback(name: string): void,
-  generateInnerStyleObject(newStyle: StyleObject): StyleObject,
-  generateInputStyleObject(): any,
-  generateRadioStyleObject(): any,
-  generateImageStyleObject(): any,
-  generateLabelStyleObject(): any,
-  registerInputEvents(): void,
+  generateIframeURL(formId: string, elementId: string): string,
 }

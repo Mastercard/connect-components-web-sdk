@@ -1,6 +1,14 @@
 /** @param {import('./types').ElementImports} $inject */
 function baseInputElement_injector($inject) {
-  const { HTMLElement, window, document, MastercardEventEmitter } = $inject;
+  const {
+    HTMLElement,
+    window,
+    document,
+    MastercardEventEmitter,
+    appConfig,
+    logger,
+    sleep,
+  } = $inject;
 
   /** @type {HTMLElement} */
   // @ts-ignore
@@ -20,6 +28,21 @@ function baseInputElement_injector($inject) {
       this.elemId = null;
       this.formId = null;
       this._hasChanged = false;
+      this.componentStyles = JSON.stringify({
+        input: {},
+        radio: {},
+        image: {},
+        label: {},
+      });
+    }
+
+    // - Static methods
+    /**
+     * @static
+     * @type {import('./types').ElementExports['observedAttributes']}
+     */
+    static get observedAttributes() {
+      return ['id', 'form-id', 'component-styles'];
     }
 
     /** @type {import('./types').ElementExports['addEventListener']} */
@@ -36,59 +59,113 @@ function baseInputElement_injector($inject) {
      * @type {import('./types').ElementExports['attributeChangedCallback']}
      */
     async attributeChangedCallback(name, oldValue, newValue) {
-      if (name === 'id' && oldValue !== newValue) {
-        this.elemId = this.getAttribute('id');
+      if (name === 'component-styles') {
+        this.componentStyles = newValue;
+        this._hasChanged = true;
+      } else if (name === 'id' && oldValue !== newValue) {
+        this.elemId = newValue;
         this._hasChanged = true;
       } else if (name === 'form-id' && oldValue !== newValue) {
-        this.formId = this.getAttribute('form-id');
+        this.formId = newValue;
         this._hasChanged = true;
       }
       if (!this.elemId || !this.formId) {
         return;
       }
-      if (this._hasChanged && this.isConnected && this.frameReady) {
+      if (this._hasChanged) {
         this._hasChanged = false;
         this.render();
       }
     }
 
     /**
-     * Base function for the other styling functions
-     * @access private
-     * @type {import('./types').ElementExports['generateBaseStyle']}
+     * @type {import('./types').ElementExports['connectedCallback']}
      */
-    generateBaseStyle(mockElement) {
-      this.parentElement.append(mockElement);
-      if (this.classList.length) {
-        Array.from(this.classList).forEach((className) => {
-          mockElement.classList.add(className);
-        });
-      }
-      const computedStyle = window.getComputedStyle(mockElement, null);
-      const styleObject = {};
-      Object.keys(computedStyle).forEach((key) => {
-        // @ts-ignore
-        styleObject[key] = computedStyle[key];
+    connectedCallback() {
+      this.formId = this.getAttribute('form-id');
+      this.elemId = this.getAttribute('id');
+      this.componentStyles = this.getAttribute('component-styles');
+      this.appendChild(this.innerFrame);
+
+      const src = this.generateIframeURL(this.formId, this.elemId);
+      this.innerFrame.setAttribute('src', src);
+      Object.assign(this.innerFrame.style, {
+        width: '100%',
+        height: '100%',
+        border: 'none',
       });
-      this.parentElement.removeChild(mockElement);
-      return styleObject;
+      this.registerInputEvents();
     }
 
     /**
-     * @type {import('./types').ElementExports['generateOuterStyle']}
+     * @type {import('./types').ElementExports['render']}
      */
-    generateOuterStyle(generatedStyle, target) {
-      const validKeys = Object.keys(generatedStyle).filter((key) => {
-        return key.charAt(0) !== '-';
-      });
-      validKeys.forEach((key) => {
-        try {
-          // @ts-ignore
-          target[key] = generatedStyle[key];
-        } catch (err) {
-          // ignore - some styles can't be modified
+    async render() {
+      while (this.isConnected === false || this.frameReady === false) {
+        await sleep();
+      }
+      if (typeof this.componentStyles !== 'string') {
+        return;
+      }
+      try {
+        const eventData = {
+          eventType: 'updateStyle',
+          data: this.componentStyles,
+        };
+        this.innerFrame.contentWindow.postMessage(
+          eventData,
+          appConfig.getFrameOrigin()
+        );
+      } catch (err) {
+        logger.error('Unable to postMessage to inner frame');
+      }
+    }
+
+    /**
+     * @interface
+     * @param {string} formId
+     * @param {string} elemId
+     * @returns {string}
+     */
+    generateIframeURL(formId, elemId) {
+      return `${formId}${elemId}`;
+    }
+
+    registerInputEvents() {
+      window.addEventListener(
+        'message',
+        (
+          /** @type {{ origin: any; data: { eventType: any; elementId: any; }; }} */ evt
+        ) => {
+          if (evt.origin !== appConfig.getFrameOrigin()) {
+            logger.warn('Ignoring message from unknown origin');
+            return;
+          }
+          const eventType = evt.data.eventType;
+          switch (eventType) {
+            case 'inputReady': {
+              this.frameReady = true;
+              this.render();
+              this.emitter.emit('ready');
+              break;
+            }
+            case 'inputBlur': {
+              if (evt.data.elementId !== this.elemId) {
+                return;
+              }
+              this.emitter.emit('blur', evt.data);
+              break;
+            }
+            case 'inputFocus': {
+              if (evt.data.elementId !== this.elemId) {
+                return;
+              }
+              this.emitter.emit('focus', evt.data);
+              break;
+            }
+          }
         }
-      });
+      );
     }
   };
 }

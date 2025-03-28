@@ -1,0 +1,6 @@
+variables/
+.gitlab-ci.yml
+.gitignore
+env.tmpl
+sonar-project-properties
+docs

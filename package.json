@@ -1,12 +1,16 @@
 {
   "name": "@mastercard/connect-components-web-sdk",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "description": "The web SDK for the Connect Components project",
-  "main": "src/index.js",
+  "main": "dist/sdk.js",
+  "module": "dist/sdk.mjs",
+  "browser": "dist/web.js",
+  "exports": {
+    "default": "./dist/sdk.mjs"
+  },
   "scripts": {
     "init": "cp env.tmpl .env",
-    "build": "npm run build:dev",
-    "dev": "webpack --config webpack.config.dev.js --mode development --watch",
+    "build": "webpack --config webpack.config.prod.js --mode production",
     "build:debug": "webpack --config webpack.config.dev.js --mode development",
     "build:local": "cat variables/local > .env && npm run build:debug",
     "build:dev": "cat variables/dev-us > .env && npm run build:debug",
@@ -22,7 +26,6 @@
     "quality:lint:fix": "eslint --ext js . --fix",
     "security:package-audit": "npm audit ---production --audit-level=high"
   },
-  "files": ["/dist/sdk.js","dist/sdk.js.map"],
   "repository": {
     "type": "git",
     "url": "git@gitlab.fini.city:connect-services/cc-sdk-web.git"

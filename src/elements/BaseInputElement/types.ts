@@ -3,6 +3,9 @@ export type ElementImports = {
   MastercardEventEmitter: import('../../core/MastercardEventEmitter/types').MastercardEventEmitter,
   document: any,
   window: any,
+  appConfig: any,
+  logger: any,
+  sleep: any
 }
 
 export type StyleObject = {
@@ -29,9 +32,9 @@ export type StyleObject = {
 
 export type ElementExports = {
   observedAttributes: Array<string>,
+  connectedCallback(): void,
   addEventListener(eventName: string, callback: Function): void,
   removeEventListener(eventName: string, callback: Function): void,
   attributeChangedCallback(name: string, oldValue: string, newValue: string): void,
-  generateOuterStyle(generatedStyle: any, target: any): void,
-  generateBaseStyle(mockElement: any): StyleObject,
+  render(): void,
 }
