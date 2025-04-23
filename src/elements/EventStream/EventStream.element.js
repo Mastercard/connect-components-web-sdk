@@ -38,15 +38,11 @@ function eventStream_injector($inject) {
         this.formId = $elem.getAttribute('form-id');
       } else if (!this.formId) {
         try {
+          // This doesn't exist in the oauth rediretion flow
           this.formId = $elem.closest('mastercard-form').getAttribute('id');
         } catch (err) {
-          logger.error(`Could not set form id: ${err}`);
+          this.formId = 'default';
         }
-      }
-
-      if (!this.formId) {
-        logger.error('Could not locate form-id');
-        return;
       }
       this.iframe = document.createElement('iframe');
       $elem.append(this.iframe);
