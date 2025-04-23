@@ -59,13 +59,13 @@ describe('elements/EventStream/EventStream.service', () => {
       expect(instance.getAttribute.calledWithExactly('event-stream-id')).to.be
         .true;
     });
-    it('should log out an error and return if there is no mastercard-form', () => {
+    it('should set a default value for form-id if there is no mastercard-form element', () => {
       instance.formId = null;
       MockElement.prototype.getAttribute = sandbox.fake.returns(null);
       MockElement.prototype.closest = sandbox.fake.returns(null);
       instance.connectedCallback();
-      expect($inject.logger.error.called).to.be.true;
-      expect($inject.document.createElement.called).to.be.false;
+      expect($inject.document.createElement.called).to.be.true;
+      expect(instance.formId).to.eq('default');
     });
     it('should get the form id if one was not already assigned', () => {
       instance.formId = null;
