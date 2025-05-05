@@ -79,6 +79,21 @@ upload:s3:prod:
   tags:
     - docker-in-docker
 
+publish:internal:
+  stage: publish
+  only:
+    - master
+  when: manual
+  script:
+    - rm -rf ./.npmrc
+    - echo -e "//nexus.fini.city/repository/npm-private/:_authToken=${NPM_AUTH_TOKEN}" > ./.npmrc
+    - npm publish --registry=https://nexus.fini.city/repository/npm-private/
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+    policy: pull
+
 # prettier:
 # -- Do we want this?
 #   stage: test
