@@ -12,6 +12,7 @@ stages:
   - test
   - scan
   - publish
+  - upload
 
 dependencies:
   stage: install
@@ -60,6 +61,23 @@ publish:
     paths:
       - node_modules/
     policy: pull
+
+upload:s3:prod:
+  stage: upload
+  image: dcr.fini.city/base-images/awscli:awscli-928523-20231129
+  only:
+    - master
+  when: manual
+  script:
+    - 'VERSION=$(grep ''"version"'' package.json | cut -d''"'' -f4)'
+    - 'aws s3 cp ./dist/ s3://prod-connectzone/js/connect-web-sdk@$VERSION/ --recursive'
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+    policy: pull
+  tags:
+    - docker-in-docker
 
 # prettier:
 # -- Do we want this?
