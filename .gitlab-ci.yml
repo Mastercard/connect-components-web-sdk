@@ -12,6 +12,7 @@ stages:
   - test
   - scan
   - publish
+  - upload
 
 dependencies:
   stage: install
@@ -61,20 +62,22 @@ publish:
       - node_modules/
     policy: pull
 
-publish:internal:
-  stage: publish
+upload:s3:prod:
+  stage: upload
+  image: dcr.fini.city/base-images/awscli:awscli-928523-20231129
   only:
     - master
   when: manual
   script:
-    - rm -rf ./.npmrc
-    - echo -e "//nexus.fini.city/repository/npm-private/:_authToken=${NPM_AUTH_TOKEN}" > ./.npmrc
-    - npm publish --registry=https://nexus.fini.city/repository/npm-private/
+    - 'VERSION=$(grep ''"version"'' package.json | cut -d''"'' -f4)'
+    - 'aws s3 cp ./dist/ s3://prod-connectzone/js/connect-components-web-sdk@$VERSION/ --recursive'
   cache:
     key: ${CI_COMMIT_REF_SLUG}
     paths:
       - node_modules/
     policy: pull
+  tags:
+    - docker-in-docker
 
 # prettier:
 # -- Do we want this?
