@@ -76,7 +76,6 @@ publish:internal:
       - node_modules/
     policy: pull
 
-#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
 # prettier:
 # -- Do we want this?
 #   stage: test
