@@ -9,12 +9,6 @@ The Connect Components SDK provides a collection of custom Web Components that c
 ```bash
 npm npm i mastercard-cc-sdk
 ```
-**Usage**
 
-From this point, the implementation steps depend on whether you are using login forms or Oauth URL.
-
-* Login Form Usage
-* Oauth URL Usage
-
-For further information on implementation please visit our [Connect Components Web SDK](https://developer.mastercard.com/open-banking-us/documentation/connect/components/integration/ccwebsdk/) for developers. Please note all other documentation is found on our [Mastercard Developer Zone](https://developer.mastercard.com/)
+For information on how to use [Connect Components](https://developer.mastercard.com/) or implement the [Connect Components Web SDK](https://developer.mastercard.com/open-banking-us/documentation/connect/components/integration/ccwebsdk/) please visit the Mastercard Developer Zone.
 
