@@ -7,7 +7,7 @@ The Connect Components SDK provides a collection of custom Web Components that c
 ## Installing
 
 ```bash
-npm npm i mastercard-cc-sdk
+npm i @mastercard/connect-components-web-sdk
 ```
 
 For information on how to use [Connect Components](https://developer.mastercard.com/) or implement the [Connect Components Web SDK](https://developer.mastercard.com/open-banking-us/documentation/connect/components/integration/ccwebsdk/) please visit the Mastercard Developer Zone.
