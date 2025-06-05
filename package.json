@@ -1,6 +1,6 @@
 {
   "name": "@mastercard/connect-components-web-sdk",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "The web SDK for the Connect Components project",
   "main": "dist/sdk.js",
   "module": "dist/sdk.mjs",
