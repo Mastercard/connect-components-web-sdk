@@ -10,4 +10,5 @@ const $inject = {
   logger: console,
 };
 
-export default mastercardForm_injector($inject);
+export const MastercardForm = mastercardForm_injector($inject);
+export default MastercardForm;

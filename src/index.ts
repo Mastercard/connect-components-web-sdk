@@ -5,13 +5,9 @@ import MastercardEventStream from './elements/EventStream';
 import appConfig from './config/app';
 
 try {
-  // @ts-ignore
   customElements.define('mastercard-form', MastercardForm);
-  // @ts-ignore
   customElements.define('mastercard-input', MastercardInput);
-  // @ts-ignore
   customElements.define('mastercard-mfa-choice', MastercardMFAChoice);
-  // @ts-ignore
   customElements.define('mastercard-event-stream', MastercardEventStream);
 } catch (err) {
   console.warn(err);

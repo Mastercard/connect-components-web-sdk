@@ -10,4 +10,5 @@ const $inject = {
   logger: console,
 };
 
-export default eventStream_injector($inject);
+export const EventStream = eventStream_injector($inject);
+export default EventStream;

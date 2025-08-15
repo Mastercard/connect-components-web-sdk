@@ -12,4 +12,5 @@ const $inject = {
   sleep,
 };
 
-export default baseInputElement_injector($inject);
+export const BaseInputElement = baseInputElement_injector($inject);
+export default BaseInputElement;
