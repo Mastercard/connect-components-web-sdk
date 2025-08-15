@@ -12,5 +12,4 @@ const $inject = {
   logger: console,
 };
 
-// @ts-ignore
 export default mastercardInput_injector($inject);

@@ -1,14 +1,19 @@
+import { MastercardEventEmitterInterface } from "./types";
+
 function mastercardEventEmitter_injector() {
-  /** @type {import('./types').MastercardEventEmitter} */
-  return class MastercardEventEmitter {
+  return class MastercardEventEmitter implements MastercardEventEmitterInterface {
+    _emitter: EventTarget;
+    _eventData: WeakMap<object, any>;
+    _callbacks: Map<any, any>;
+ 
     constructor () {
       this._emitter = new EventTarget();
       this._eventData = new WeakMap();
       this._callbacks = new Map();
     }
-    /** @type {import('./types').MastercardEventEmitter['on']} */
-    on(eventName, callback) {
-      const proxiedEventHandler = (/** @type {object} */ event) => {
+    
+    on(eventName: string, callback: (eventData: any) => void): void {
+      const proxiedEventHandler = (event: any) => {
         callback(this._eventData.get(event));
       }
       if (!this._callbacks.has(eventName)) {
@@ -23,8 +28,7 @@ function mastercardEventEmitter_injector() {
       this._emitter.addEventListener(eventName, proxiedEventHandler);
     }
 
-    /** @type {import('./types').MastercardEventEmitter['off']} */
-    off(eventName, callback) {
+    off(eventName: string, callback: (eventData: any) => void) {
       const proxiedEventHandler = this._callbacks.get(eventName)?.get(callback);
       if (proxiedEventHandler) {
         this._emitter.removeEventListener(eventName, proxiedEventHandler);
@@ -32,8 +36,7 @@ function mastercardEventEmitter_injector() {
       }
     }
 
-    /** @type {import('./types').MastercardEventEmitter['emit']} */
-    emit(eventName, eventData) {
+    emit(eventName: string, eventData: any): void {
       const newEvent = new Event(eventName);
       this._eventData.set(newEvent, eventData);
       this._emitter.dispatchEvent(newEvent);

@@ -1,21 +1,16 @@
-/** @param {import('../types').ConfigImports} $inject */
-function appConfig_injector($inject) {
+import { ConfigImports } from "../types";
+function appConfig_injector($inject: ConfigImports) {
   const { APP_SDK_BASE } = $inject;
-  /** @type {URL} */
-  let sdkBase;
+  let sdkBase: URL;
 
   /**
    * For local testing. This does not need to be documented, and customers should not
    * use this.
-   * @type {import('../types').AppConfig['setSDKBase']}
    */
-  function setSDKBase(newBase) {
+  function setSDKBase(newBase: string) {
     sdkBase = new URL(newBase);
   }
 
-  /**
-   * @type {import('../types').AppConfig['getSDKBase']}
-   */
   function getSDKBase() {
     // Always fall back to default if the sdk base gets clobbered
     if (!sdkBase) {
@@ -28,9 +23,6 @@ function appConfig_injector($inject) {
     return base;
   }
 
-  /**
-   * @type {import('../types').AppConfig['getFrameOrigin']}
-   */
   function getFrameOrigin() {
     // Always fall back to default if the sdk base gets clobbered
     if (!sdkBase) {
@@ -39,9 +31,6 @@ function appConfig_injector($inject) {
     return sdkBase.origin;
   }
 
-  /**
-   * @type {import('../types').AppConfig}
-   */
   return {
     // sdkBase: sdkBase.toString(),
     // frameOrigin: sdkBase.origin,

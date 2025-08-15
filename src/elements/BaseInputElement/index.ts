@@ -11,5 +11,5 @@ const $inject = {
   logger: console,
   sleep,
 };
-// @ts-ignore
+
 export default baseInputElement_injector($inject);

@@ -1,5 +1,6 @@
-/** @param {import('./types').ElementImports} $inject */
-function baseInputElement_injector($inject) {
+import {ElementImports, BaseInput, StyleUpdateEvent, WindowEvent} from "./types";
+
+function baseInputElement_injector($inject: ElementImports) {
   const {
     HTMLElement,
     window,
@@ -10,12 +11,15 @@ function baseInputElement_injector($inject) {
     sleep,
   } = $inject;
 
-  /** @type {HTMLElement} */
-  // @ts-ignore
-  return class BaseInputElement extends HTMLElement {
-    /**
-     * @type {import('./types').ElementExports['constructor']}
-     */
+  return class BaseInputElement extends HTMLElement implements BaseInput {
+    formId: string|null;
+    elemId: string|null;
+    frameReady: boolean;
+    innerFrame: HTMLIFrameElement;
+    emitter = new MastercardEventEmitter();
+    _hasChanged: boolean;
+    componentStyles: string;
+
     constructor() {
       super();
       this.frameReady = false; // Let's us know when the inner iframe has finished loading
@@ -23,7 +27,6 @@ function baseInputElement_injector($inject) {
       this.innerFrame = document.createElement('iframe');
       // This is our internal emitter. Events here are exposed via this
       // class' addEventListener and removeEventListener methods
-      // @ts-ignore
       this.emitter = new MastercardEventEmitter();
       this.elemId = null;
       this.formId = null;
@@ -37,28 +40,21 @@ function baseInputElement_injector($inject) {
     }
 
     // - Static methods
-    /**
-     * @static
-     * @type {import('./types').ElementExports['observedAttributes']}
-     */
     static get observedAttributes() {
       return ['id', 'form-id', 'component-styles'];
     }
 
-    /** @type {import('./types').ElementExports['addEventListener']} */
-    addEventListener(eventName, callback) {
+    addEventListener(eventName: string, callback: (eventData: any) => void) {
       this.emitter.on(eventName, callback);
     }
 
-    /** @type {import('./types').ElementExports['removeEventListener']} */
-    removeEventListener(eventName, callback) {
+    removeEventListener(eventName: string, callback: (eventData: any) => void) {
       this.emitter.off(eventName, callback);
     }
-
     /**
-     * @type {import('./types').ElementExports['attributeChangedCallback']}
+     * @internal
      */
-    async attributeChangedCallback(name, oldValue, newValue) {
+    async attributeChangedCallback(name: string, oldValue: string, newValue: string) {
       if (name === 'component-styles') {
         this.componentStyles = newValue;
         this._hasChanged = true;
@@ -79,12 +75,12 @@ function baseInputElement_injector($inject) {
     }
 
     /**
-     * @type {import('./types').ElementExports['connectedCallback']}
+     * @internal
      */
     connectedCallback() {
       this.formId = this.getAttribute('form-id');
       this.elemId = this.getAttribute('id');
-      this.componentStyles = this.getAttribute('component-styles');
+      this.componentStyles = this.getAttribute('component-styles') ?? '';
       this.appendChild(this.innerFrame);
 
       const src = this.generateIframeURL(this.formId, this.elemId);
@@ -97,9 +93,6 @@ function baseInputElement_injector($inject) {
       this.registerInputEvents();
     }
 
-    /**
-     * @type {import('./types').ElementExports['render']}
-     */
     async render() {
       while (this.isConnected === false || this.frameReady === false) {
         await sleep();
@@ -108,11 +101,11 @@ function baseInputElement_injector($inject) {
         return;
       }
       try {
-        const eventData = {
+        const eventData: StyleUpdateEvent = {
           eventType: 'updateStyle',
           data: this.componentStyles,
         };
-        this.innerFrame.contentWindow.postMessage(
+        this.innerFrame.contentWindow?.postMessage(
           eventData,
           appConfig.getFrameOrigin()
         );
@@ -121,22 +114,13 @@ function baseInputElement_injector($inject) {
       }
     }
 
-    /**
-     * @interface
-     * @param {string} formId
-     * @param {string} elemId
-     * @returns {string}
-     */
-    generateIframeURL(formId, elemId) {
+    generateIframeURL(formId: string|null, elemId:string|null): string {
       return `${formId}${elemId}`;
     }
 
     registerInputEvents() {
       window.addEventListener(
-        'message',
-        (
-          /** @type {{ origin: any; data: { eventType: any; elementId: any; }; }} */ evt
-        ) => {
+        'message', (evt: WindowEvent) => {
           if (evt.origin !== appConfig.getFrameOrigin()) {
             logger.warn('Ignoring message from unknown origin');
             return;
@@ -146,7 +130,7 @@ function baseInputElement_injector($inject) {
             case 'inputReady': {
               this.frameReady = true;
               this.render();
-              this.emitter.emit('ready');
+              this.emitter.emit('ready', {});
               break;
             }
             case 'inputBlur': {

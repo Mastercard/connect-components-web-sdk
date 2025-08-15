@@ -12,5 +12,4 @@ const $inject = {
   logger: console,
   MastercardEventEmitter,
 };
-// @ts-ignore
 export default mastercardMfaChoice_injector($inject);

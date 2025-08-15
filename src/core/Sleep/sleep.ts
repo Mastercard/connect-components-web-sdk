@@ -1,15 +1,12 @@
-/**
- * @param {import('./types').ServiceImports} $inject 
- * @returns {import('./types').ServiceExports}
- */
-function sleep_injector($inject) {
+import { ServiceImports } from "./types";
+function sleep_injector($inject: ServiceImports) {
   const { Promise } = $inject;
   /**
    * @param {number} time
    * @returns Promise<void>
    */
   return function sleep(time = 1) {
-    return new Promise((/** @type {(arg0: null) => void} */ resolve) => {
+    return new Promise((resolve: (arg0: null) => void) => {
       setTimeout(() => {
         resolve(null);
       }, time);
