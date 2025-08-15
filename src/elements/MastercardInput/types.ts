@@ -3,7 +3,7 @@ import BaseInputElement from '../BaseInputElement'
 export type ElementImports = {
   appConfig: import('../../config/types').AppConfig,
   BaseInputElement: typeof BaseInputElement,
-  sleep: Function,
+  sleep: Function, // eslint-disable-line @typescript-eslint/no-unsafe-function-type
   document: Document,
   window: Window,
   logger: Console

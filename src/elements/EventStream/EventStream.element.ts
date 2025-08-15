@@ -52,6 +52,7 @@ function eventStream_injector($inject: ElementImports) {
 
     // - Lifecycle Events
     connectedCallback() {
+      /* eslint-disable @typescript-eslint/no-this-alias */
       const $elem = this;
       if (!this.eventStreamId) {
         this.eventStreamId = $elem.getAttribute('event-stream-id');
@@ -62,6 +63,7 @@ function eventStream_injector($inject: ElementImports) {
         try {
           // This doesn't exist in the oauth rediretion flow
           this.formId = $elem.closest('mastercard-form')?.getAttribute('id') ?? 'default';
+          /* eslint-disable @typescript-eslint/no-unused-vars */
         } catch (err) {
           this.formId = 'default';
         }

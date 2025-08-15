@@ -109,6 +109,7 @@ function baseInputElement_injector($inject: ElementImports) {
           eventData,
           appConfig.getFrameOrigin()
         );
+        /* eslint-disable @typescript-eslint/no-unused-vars */
       } catch (err) {
         logger.error('Unable to postMessage to inner frame');
       }
