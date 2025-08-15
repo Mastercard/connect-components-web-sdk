@@ -5,4 +5,5 @@ const $inject: ConfigImports = {
   APP_SDK_BASE: process.env.APP_SDK_BASE || 'https://components.finicity.com',
 };
 
-export default appConfig_injector($inject);
+export const appConfig = appConfig_injector($inject);
+export default appConfig;
