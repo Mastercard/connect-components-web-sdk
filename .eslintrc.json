@@ -1,5 +1,8 @@
 {
-  "extends": "eslint:recommended",
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
   "env": {
     "browser": true,
     "node": true,
@@ -7,7 +10,10 @@
   },
   "rules": {
     "keyword-spacing": 1,
-    "no-param-reassign": "error"
+    "no-param-reassign": "error",
+    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/no-explicit-any": "off", // Allow usage of 'any' type
+    "@typescript-eslint/ban-ts-comment": "off" // Allow usage of @ts-ignore
   },
   "ignorePatterns": [
     "dist/",
@@ -15,8 +21,13 @@
     "**/*.spec.js",
     "**/*.e2e.js"
   ],
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "@typescript-eslint"
+  ],
   "parserOptions": {
     "sourceType": "module",
-    "ecmaVersion": 2024
+    "ecmaVersion": 2024,
+    "project": "./tsconfig.json" // Ensure ESLint uses TypeScript configuration
   }
 }

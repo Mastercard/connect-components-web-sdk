@@ -29,8 +29,8 @@
     "test:unit:coverage": "nyc npm run test:unit",
     "quality:unit-coverage": "npm run test:unit:coverage",
     "quality:types": "tsc",
-    "quality:lint": "eslint --ext js .",
-    "quality:lint:fix": "eslint --ext js . --fix",
+    "quality:lint": "eslint --ext .js,.ts src/",
+    "quality:lint:fix": "eslint --ext .js,.ts src/ --fix",
     "security:package-audit": "npm audit ---production --audit-level=high"
   },
   "repository": {
@@ -45,6 +45,8 @@
     "@babel/eslint-parser": "^7.22.15",
     "@babel/preset-env": "^7.23.2",
     "@babel/register": "^7.22.15",
+    "@typescript-eslint/eslint-plugin": "^8.39.1",
+    "@typescript-eslint/parser": "^8.39.1",
     "chai": "^4.3.10",
     "dotenv-webpack": "^8.0.1",
     "eslint": "^8.51.0",
