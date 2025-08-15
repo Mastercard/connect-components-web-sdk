@@ -1,7 +1,7 @@
 
 export type ElementImports = {
   appConfig: import('../../config/types').AppConfig,
-  HTMLElement: any,
+  HTMLElement: typeof HTMLElement,
   document: any,
   window: any,
   logger: {
@@ -10,11 +10,17 @@ export type ElementImports = {
     error: Function,
   }
 }
-export type ElementExports = {
-  observedAttributes(): Array<string>,
+
+export interface MastercardEventStreamInterface {
   connectedCallback(): void,
+  addEventListener(eventName: string, callback: EventListenerOrEventListenerObject): void,
+  removeEventListener(eventName: string, callback: EventListenerOrEventListenerObject): void,
   attributeChangedCallback(name: string, oldValue: string, newValue: string): void,
   _bindFrameSource(): void,
-  _registerEventListener(): void,
-  _isValidEventStreamId(id: string): boolean,
-};
+  _registerEventListener(): void
+}
+
+export interface MastercardEventStreamStatic {
+  new(...args: any[]): any
+  observedAttributes: Array<string>,
+}
