@@ -16,7 +16,7 @@
   "scripts": {
     "init": "cp env.tmpl .env",
     "build": "webpack --config webpack.config.prod.mjs --mode production",
-    "build:clean": "rm -r dist && mkdir dist",
+    "build:clean": "[ -d dist ] && rm -r dist; mkdir dist",
     "build:debug": "webpack --config webpack.config.dev.mjs --mode development",
     "build:local": "cat variables/local > .env && npm run build:debug",
     "build:dev": "cat variables/dev-us > .env && npm run build:debug",
