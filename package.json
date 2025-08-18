@@ -10,6 +10,7 @@
       "import": "./dist/mastercard-connect-components-esm.min.js",
       "require": "./dist/mastercard-connect-components-cjs.min.js",
       "umd": "./dist/mastercard-connect-components-umd.min.js",
+      "browser": "./dist/mastercard-connect-components-iife.min.js",
       "types": "./dist/types/index.d.ts"
     }
   },
