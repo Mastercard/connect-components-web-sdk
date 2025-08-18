@@ -2,7 +2,7 @@ import {ElementImports, EventMessage} from "./types";
 import {EventTypes} from "../../types";
 import EventStream from '../EventStream'
 function mastercardForm_injector($inject: ElementImports) {
-  const {appConfig, HTMLElement, crypto, logger, MutationObserver} =
+  const {appConfig, HTMLElement, crypto, logger, MutationObserver, document} =
     $inject;
 
   return class MastercardForm extends HTMLElement {

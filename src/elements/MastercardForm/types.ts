@@ -8,7 +8,8 @@ export type ElementImports = {
   HTMLElement: typeof HTMLElement,
   EventStream: typeof EventStream,
   MutationObserver: typeof MutationObserver,
-  logger: Console
+  logger: Console,
+  document: Document
 }
 export type EventMessage = {
   formId: string,

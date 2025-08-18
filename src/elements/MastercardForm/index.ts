@@ -8,6 +8,7 @@ const $inject = {
   EventStream,
   MutationObserver,
   logger: console,
+  document
 };
 
 export const MastercardForm = mastercardForm_injector($inject);

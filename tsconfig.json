@@ -5,9 +5,10 @@
       "dom"
     ],
     "outDir": "./dist/",
-    "module": "commonjs",
+    "moduleDetection": "force",
+    "module": "preserve",
     "target": "es2024",
-    "noImplicitAny": true,
+    "resolveJsonModule": true,
     "allowJs": true,
     "checkJs": true,
     "strict": true,
@@ -21,7 +22,8 @@
     "skipLibCheck": true,
     "allowUmdGlobalAccess": true,
     "moduleResolution": "node",
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "isolatedModules": true
   },
   "include": [
     "./src/**/*"
