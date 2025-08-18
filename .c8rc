@@ -6,5 +6,11 @@
   "branches": 65,
   "statements": 95,
   "include": ["src/**/*"],
-  "exclude": ["**/*.spec.js", "tests/", "dist/"]
+  "exclude": [
+    "src/**/index.ts",
+    "src/**/types.ts",
+    "**/*.spec.js",
+    "tests/",
+    "dist/"
+  ]
 }
