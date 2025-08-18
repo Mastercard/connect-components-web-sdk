@@ -5,9 +5,9 @@ export type ElementImports = {
   document: any,
   window: any,
   logger: {
-    log: Function,
-    warn: Function,
-    error: Function,
+    log: (...args: any[]) => void,
+    warn: (...args: any[]) => void,
+    error: (...args: any[]) => void,
   }
 }
 

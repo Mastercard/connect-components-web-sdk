@@ -1,0 +1,16 @@
+{
+  "reporter": ["cobertura", "html", "lcov", "text"],
+  "check-coverage": true,
+  "lines": 95,
+  "functions": 95,
+  "branches": 65,
+  "statements": 95,
+  "include": ["src/**/*"],
+  "exclude": [
+    "src/**/index.ts",
+    "src/**/types.ts",
+    "**/*.spec.js",
+    "tests/",
+    "dist/"
+  ]
+}

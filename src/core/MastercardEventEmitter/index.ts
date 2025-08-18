@@ -1,2 +1,4 @@
 import { mastercardEventEmitter_injector } from './MastercardEventEmitter.class';
-export default mastercardEventEmitter_injector();
+
+export const MastercardEventEmitter = mastercardEventEmitter_injector();
+export default MastercardEventEmitter;

@@ -3,7 +3,7 @@ import BaseInputElement from '../BaseInputElement'
 export type ElementImports = {
   appConfig: import('../../config/types').AppConfig,
   BaseInputElement: typeof BaseInputElement,
-  sleep: Function,
+  sleep: Function, 
   document: Document,
   window: Window,
   logger: Console

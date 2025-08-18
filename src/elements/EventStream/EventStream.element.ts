@@ -62,6 +62,7 @@ function eventStream_injector($inject: ElementImports) {
         try {
           // This doesn't exist in the oauth rediretion flow
           this.formId = $elem.closest('mastercard-form')?.getAttribute('id') ?? 'default';
+          /* eslint-disable @typescript-eslint/no-unused-vars */
         } catch (err) {
           this.formId = 'default';
         }

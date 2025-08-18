@@ -12,4 +12,5 @@ const $inject = {
   logger: console,
   MastercardEventEmitter,
 };
-export default mastercardMfaChoice_injector($inject);
+export const MastercardMfaChoice = mastercardMfaChoice_injector($inject);
+export default MastercardMfaChoice;
