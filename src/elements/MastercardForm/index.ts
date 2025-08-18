@@ -1,13 +1,15 @@
 import { mastercardForm_injector } from './MastercardForm.element';
 import appConfig from '../../config/app';
-
+import EventStream from '../EventStream';
 const $inject = {
   appConfig,
   crypto,
   HTMLElement,
-  document,
+  EventStream,
   MutationObserver,
   logger: console,
+  document
 };
 
-export default mastercardForm_injector($inject);
+export const MastercardForm = mastercardForm_injector($inject);
+export default MastercardForm;

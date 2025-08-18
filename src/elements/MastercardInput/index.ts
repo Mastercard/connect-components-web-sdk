@@ -12,5 +12,5 @@ const $inject = {
   logger: console,
 };
 
-// @ts-ignore
-export default mastercardInput_injector($inject);
+export const MastercardInput = mastercardInput_injector($inject);
+export default MastercardInput;

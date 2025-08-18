@@ -1,16 +1,21 @@
+import EventStream from '../EventStream'
+import {EventTypes} from '../../types'
 export type ElementImports = {
   appConfig: import('../../config/types').AppConfig,
   crypto: {
     randomUUID(): string,
   },
-  HTMLElement: any,
-  document: any,
-  MutationObserver: any,
-  logger: {
-    log: Function,
-    warn: Function,
-    error: Function,
-  }
+  HTMLElement: typeof HTMLElement,
+  EventStream: typeof EventStream,
+  MutationObserver: typeof MutationObserver,
+  logger: Console,
+  document: Document
+}
+export type EventMessage = {
+  formId: string,
+  eventType: EventTypes,
+  requestId: string,
+  eventStreamId?: string
 }
 
 export type ElementExports = {
