@@ -1,13 +1,12 @@
-/** @param {import('./types').ElementImports} $inject */
-function mastercardInput_injector($inject) {
+import {ElementImports} from "./types";
+function mastercardInput_injector($inject: ElementImports) {
   const { appConfig, BaseInputElement } = $inject;
 
-  // @ts-ignore
   return class MastercardInput extends BaseInputElement {
-    /**
-     * @type {import('./types').ElementExports['generateIframeURL']}
-     */
-    generateIframeURL(formId, elementId) {
+    constructor() {
+      super();
+    }
+    generateIframeURL(formId: string, elementId: string) {
       return `${appConfig.getSDKBase()}/frames/parent/login-forms/${formId}/elements/${elementId}/contents.html`;
     }
   };

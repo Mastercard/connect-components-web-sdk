@@ -1,14 +1,44 @@
-/**
- * @param {import('./types').ElementImports} $inject
- */
-function eventStream_injector($inject) {
-  const { appConfig, HTMLElement, logger, document, window } = $inject;
+import {ElementImports, MastercardEventStreamInterface } from "./types";
+import { EventTypes } from "../../types";
 
-  return class MastercardEventStream extends HTMLElement {
-    /**
-     * @constructor
-     * @type {import('./types').ElementExports['constructor']}
-     */
+interface PostmessageEvent extends WindowProxy {
+  id: string,
+  data: {
+    eventType: EventTypes,
+    id: string,
+    data: {
+      isPublic: boolean,
+    }
+  }
+}
+
+class InternalEvent extends Event {
+  data: {
+    isPublic?: boolean,
+    eventType?: EventTypes,
+    id?: string
+  };
+  id: string = '';
+  isPublic: boolean = false;
+
+  constructor(errorMessage: string) {
+    super(errorMessage);
+    this.data = {
+      isPublic: false
+    }
+  }
+}
+
+function eventStream_injector($inject: ElementImports) {
+  const {appConfig, HTMLElement, logger, document, window } = $inject;
+
+  class MastercardEventStream extends HTMLElement implements MastercardEventStreamInterface {
+
+    formId: string|null;
+    eventStreamId: string|null;
+    events: EventTarget;
+    iframe: HTMLIFrameElement|undefined;
+
     constructor() {
       super();
       this.eventStreamId = null;
@@ -16,19 +46,11 @@ function eventStream_injector($inject) {
       this.events = new EventTarget();
     }
     // - Static methods
-    /**
-     * @static
-     * @type {import('./types').ElementExports['observedAttributes']}
-     */
     static get observedAttributes() {
-      // @ts-ignore
       return ['event-stream-id', 'form-id'];
     }
 
     // - Lifecycle Events
-    /**
-     * @type {import('./types').ElementExports['connectedCallback']}
-     */
     connectedCallback() {
       const $elem = this;
       if (!this.eventStreamId) {
@@ -39,23 +61,22 @@ function eventStream_injector($inject) {
       } else if (!this.formId) {
         try {
           // This doesn't exist in the oauth rediretion flow
-          this.formId = $elem.closest('mastercard-form').getAttribute('id');
+          this.formId = $elem.closest('mastercard-form')?.getAttribute('id') ?? 'default';
+          /* eslint-disable @typescript-eslint/no-unused-vars */
         } catch (err) {
           this.formId = 'default';
         }
       }
       this.iframe = document.createElement('iframe');
-      $elem.append(this.iframe);
+      $elem.append(this.iframe ?? '');
       $elem.style.display = 'none';
       if (this.eventStreamId) {
         this._bindFrameSource();
         this._registerEventListener();
       }
     }
-    /**
-     * @type {import('./types').ElementExports['attributeChangedCallback']}
-     */
-    attributeChangedCallback(name, _oldValue, newValue) {
+
+    attributeChangedCallback(name: string, _oldValue: string, newValue: string) {
       if (!this.isConnected) {
         return;
       }
@@ -67,26 +88,15 @@ function eventStream_injector($inject) {
     }
 
     // - Custom Methods
-
-    /**
-     * @access private
-     * @type {import('./types').ElementExports['_bindFrameSource']}
-     */
     _bindFrameSource() {
       const frameSource = `${appConfig.getSDKBase()}/frames/parent/forms/event-stream.html?event-stream-id=${
         this.eventStreamId
       }&form-id=${this.formId}`;
-      // @ts-ignore
-      this.iframe.setAttribute('src', frameSource);
+      this.iframe?.setAttribute('src', frameSource);
     }
 
-    /**
-     * @access private
-     * @type {import('./types').ElementExports['_registerEventListener']}
-     */
     _registerEventListener() {
-      // @ts-ignore
-      window.addEventListener('message', (event) => {
+      window.addEventListener('message', (event: PostmessageEvent) => { 
         if (event.origin !== appConfig.getFrameOrigin()) {
           logger.warn(`Skipping message from ${event.origin}`);
           return;
@@ -97,17 +107,12 @@ function eventStream_injector($inject) {
         payload to determine the kind of event to send. Then we add the id of the event. Then we clear
         out the payload of those values so we don't have duplicates
         */
-        const newEvent = new Event(event.data.eventType);
-        // @ts-ignore
+        const newEvent = new InternalEvent(event.data.eventType);
         newEvent.data = (event.data || {}).data;
-        // @ts-ignore
         newEvent.id = (event.data || {}).id;
         try {
-          // @ts-ignore
           delete newEvent.data.isPublic;
-          // @ts-ignore
           delete newEvent.data.eventType;
-          // @ts-ignore
           delete newEvent.data.id;
         } catch (err) {
           logger.warn(err);
@@ -116,16 +121,14 @@ function eventStream_injector($inject) {
       });
     }
 
-    /**
-     * @method
-     * @type {import('./types').ElementExports['_isValidEventStreamId']}
-     */
-    _isValidEventStreamId(id) {
+    _isValidEventStreamId(id: string) {
       const isValid =
         /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
       return isValid.test(id);
     }
-  };
+  }
+
+  return MastercardEventStream;
 }
 
 export { eventStream_injector };

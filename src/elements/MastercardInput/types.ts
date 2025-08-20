@@ -1,10 +1,12 @@
+import BaseInputElement from '../BaseInputElement'
+
 export type ElementImports = {
   appConfig: import('../../config/types').AppConfig,
-  BaseInputElement: any,
-  sleep: Function,
-  document: any,
-  window: any,
-  logger: any
+  BaseInputElement: typeof BaseInputElement,
+  sleep: Function, 
+  document: Document,
+  window: Window,
+  logger: Console
 }
 
 export type StyleObject = {

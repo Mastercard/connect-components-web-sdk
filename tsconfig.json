@@ -1,20 +1,29 @@
 {
-  "$schema": "https://json.schemastore.org/tsconfig",
-  "display": "Node 18",
   "compilerOptions": {
     "lib": [
-      "es2021",
+      "es2024",
       "dom"
     ],
-    "module": "commonjs",
-    "target": "es2021",
+    "outDir": "./dist/",
+    "moduleDetection": "force",
+    "module": "preserve",
+    "target": "es2024",
+    "resolveJsonModule": true,
     "allowJs": true,
     "checkJs": true,
     "strict": true,
-    "noEmit": true,
+    "noEmit": false,
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": false,
+    "stripInternal": true,
+    "removeComments": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "allowUmdGlobalAccess": true
+    "allowUmdGlobalAccess": true,
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "isolatedModules": true
   },
   "include": [
     "./src/**/*"
@@ -22,5 +31,5 @@
   "exclude": [
     "./src/**/*.spec.js"
   ],
-  "compileOnSave": true
+  "compileOnSave": false
 }
