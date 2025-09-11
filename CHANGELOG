@@ -1,0 +1,11 @@
+# Changelog
+
+### [1.1.6](https://www.npmjs.com/package/@mastercard/connect-components-web-sdk/v/1.6) (Latest)
+---
+###### Typescript
+- Included types in bundle
+
+### [1.1.5](https://www.npmjs.com/package/@mastercard/connect-components-web-sdk/v/1.1.5) (05/26/2025)
+---
+###### Bug Fixes
+- Improved redirection error handling in OAuth flow
