@@ -2,30 +2,29 @@ import {ElementImports, MastercardEventStreamInterface } from "./types";
 import { EventTypes } from "../../types";
 
 interface PostmessageEvent extends WindowProxy {
-  id: string,
   data: {
     eventType: EventTypes,
+    eventStreamId: string,
     id: string,
-    data: {
-      isPublic: boolean,
-    }
+    isPublic: boolean,
+    data: any
   }
 }
 
-class InternalEvent extends Event {
-  data: {
-    isPublic?: boolean,
-    eventType?: EventTypes,
-    id?: string
-  };
+class SDKEvent extends Event {
+  data: {};
   id: string = '';
+  eventType: string;
   isPublic: boolean = false;
+  eventStreamId: string = '';
 
-  constructor(errorMessage: string) {
-    super(errorMessage);
-    this.data = {
-      isPublic: false
-    }
+  constructor(id: string, eventType: string, eventStreamId: string, data: any) {
+    super(eventType);
+    this.id = id;
+    this.data = data;
+    this.isPublic = false;
+    this.eventStreamId = eventStreamId;
+    this.eventType = eventType;
   }
 }
 
@@ -38,6 +37,7 @@ function eventStream_injector($inject: ElementImports) {
     eventStreamId: string|null;
     events: EventTarget;
     iframe: HTMLIFrameElement|undefined;
+    hasRegistered = false;
 
     constructor() {
       super();
@@ -96,6 +96,11 @@ function eventStream_injector($inject: ElementImports) {
     }
 
     _registerEventListener() {
+      if(this.hasRegistered) {
+        console.warn('Event listener already registered');
+        return false;
+      }
+      this.hasRegistered = true;
       window.addEventListener('message', (event: PostmessageEvent) => { 
         if (event.origin !== appConfig.getFrameOrigin()) {
           logger.warn(`Skipping message from ${event.origin}`);
@@ -107,16 +112,12 @@ function eventStream_injector($inject: ElementImports) {
         payload to determine the kind of event to send. Then we add the id of the event. Then we clear
         out the payload of those values so we don't have duplicates
         */
-        const newEvent = new InternalEvent(event.data.eventType);
-        newEvent.data = (event.data || {}).data;
-        newEvent.id = (event.data || {}).id;
-        try {
-          delete newEvent.data.isPublic;
-          delete newEvent.data.eventType;
-          delete newEvent.data.id;
-        } catch (err) {
-          logger.warn(err);
-        }
+        const newEvent = new SDKEvent(
+          event.data?.id,
+          event.data?.eventType,
+          event.data?.eventStreamId,
+          event.data?.data
+        );
         this.events.dispatchEvent(newEvent);
       });
     }
