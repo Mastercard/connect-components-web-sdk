@@ -1,6 +1,14 @@
 # Changelog
+### [1.1.7](https://www.npmjs.com/package/@mastercard/connect-components-web-sdk/v/1.7) (Latest, 10/15/2025)  
+---
+###### Improved
+- Enhanced events for better debugging
 
-### [1.1.6](https://www.npmjs.com/package/@mastercard/connect-components-web-sdk/v/1.6) (Latest)
+###### Bug Fixes
+- Fixed handling of Platform errors
+- Ensure referrer is set correctly on document
+
+### [1.1.6](https://www.npmjs.com/package/@mastercard/connect-components-web-sdk/v/1.6) (09/11/2025)
 ---
 ###### Typescript
 - Included types in bundle
