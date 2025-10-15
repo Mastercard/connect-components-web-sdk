@@ -36,11 +36,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@gitlab.fini.city:connect-services/cc-sdk-web.git"
+    "url": "https://github.com/Mastercard/connect-components-sdk.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "UNLICENSED",
+  "keywords": [
+    "Mastercard",
+    "Mastercard Open Banking Connect"
+  ],
+  "author": "Mastercard Open Finance",
+  "license": "MIT",
   "devDependencies": {
     "@babel/cli": "^7.28.3",
     "@babel/core": "^7.28.3",
